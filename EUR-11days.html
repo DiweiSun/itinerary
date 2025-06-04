@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>意法瑞三国10天9晚经典行程</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <style>
+        body {
+            font-family: 'Microsoft YaHei', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #2980b9;
+            border-left: 4px solid #3498db;
+            padding-left: 10px;
+        }
+        #map {
+            height: 600px;
+            margin: 20px 0;
+            border: 2px solid #3498db;
+            border-radius: 8px;
+        }
+        .itinerary-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background-color: white;
+            box-shadow: 0 2px 3px rgba(0,0,0,0.1);
+        }
+        .itinerary-table th, .itinerary-table td {
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+        }
+        .itinerary-table th {
+            background-color: #3498db;
+            color: white;
+        }
+        .train {
+            color: #e67e22;
+            font-weight: bold;
+        }
+        .walking {
+            color: #16a085;
+            font-weight: bold;
+        }
+        .flight {
+            color: #9b59b6;
+            font-weight: bold;
+        }
+        .flight-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        .flight-table th, .flight-table td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+        .flight-table th {
+            background-color: #3498db;
+            color: white;
+        }
+        .map-legend {
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 0 5px rgba(0,0,0,0.2);
+            line-height: 1.8;
+        }
+        .horizontal-label {
+            white-space: nowrap; /* 禁止换行 */
+            display: inline-block; /* 让div宽度随内容扩展 */
+            font-size: 14px;
+            text-shadow: 1px 1px 2px white;
+            padding: 2px 8px; /* 增加左右padding */
+            background: rgba(255,255,255,0.7);
+            border-radius: 4px;
+            border: 1px solid currentColor;
+            transform: translate(-50%, 0); /* 保持水平居中 */
+            pointer-events: none; /* 防止标签阻挡地图交互 */
+        }
+        .ticket-info {
+            font-size: 14px;
+        }
+        .transport-info {
+            font-size: 14px;
+            color: #f39c12;
+        }
+        .nav-point {
+            font-size: 14px;
+            color: #2ecc71;
+        }
+        .attraction-link {
+            color: #2980b9;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s;
+            border-bottom: 1px dashed #3498db;
+            padding-bottom: 1px;
+        }
+        .attraction-link:hover {
+            color: #e74c3c;
+            border-bottom: 1px solid #e74c3c;
+        }
+        .guide-section {
+            margin-bottom: 30px;
+            padding: 15px;
+            background: #f9f9f9;
+            border-left: 4px solid #3498db;
+        }
+        .back-to-top {
+            display: block;
+            text-align: right;
+            color: #7f8c8d;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <h1>意法瑞三国10天9晚经典行程</h1>
+
+    <div id="map"></div>
+    <div class="map-legend">
+        <strong>地图图例：</strong><br>
+        <span class="train">■ 火车</span> | 
+        <span class="walking">■ 步行/徒步</span> | 
+        <span class="flight">■ 飞机</span>
+    </div>
+
+    <h2>完整行程表</h2>
+    <table class="itinerary-table">
+        <tr>
+            <th>日期</th>
+            <th>城市</th>
+            <th>交通方式</th>
+            <th>主要景点</th>
+            <th>票务信息</th>
+            <th>交通提示</th>
+            <th>住宿</th>
+        </tr>
+        
+        <!-- Day 1 -->
+        <tr>
+            <td>9.27<br>周四</td>
+            <td>罗马</td>
+            <td>
+                <span class="flight">上海→罗马</span><br>
+                <span class="train">机场火车→市中心</span>
+            </td>
+            <td>
+                <a href="#梵蒂冈博物馆攻略" class="attraction-link">梵蒂冈博物馆</a><br>
+                <a href="#圣天使城堡攻略" class="attraction-link">圣天使城堡</a><br>
+                <a href="#万神庙攻略" class="attraction-link">万神庙</a><br>
+                <a href="#许愿池攻略" class="attraction-link">许愿池</a>
+            </td>
+            <td class="ticket-info">
+                梵蒂冈博物馆：17€+4€预订费，需提前官网预约<br>
+                圣天使城堡：15€，可现场购票
+            </td>
+            <td class="transport-info">
+                机场到Termini火车站：Leonardo Express火车14€<br>
+                罗马通票：建议购买Roma Pass
+            </td>
+            <td>Hotel Giglio Dell's Opera<br>(含早)</td>
+        </tr>
+        
+        <!-- Day 2 -->
+        <tr>
+            <td>9.28<br>周五</td>
+            <td>罗马</td>
+            <td><span class="walking">步行游览</span></td>
+            <td>
+                <a href="#西班牙广场攻略" class="attraction-link">西班牙广场</a><br>
+                <a href="#真理之口攻略" class="attraction-link">真理之口</a><br>
+                <a href="#斗兽场攻略" class="attraction-link">斗兽场</a><br>
+                <a href="#古罗马广场攻略" class="attraction-link">古罗马广场</a><br>
+                <a href="#威尼斯广场攻略" class="attraction-link">威尼斯广场</a>
+            </td>
+            <td class="ticket-info">
+                斗兽场：16€含古罗马广场和帕拉丁山，建议预约<br>
+                真理之口：免费
+            </td>
+            <td class="transport-info">
+                使用Roma Pass可免费乘坐公共交通<br>
+                斗兽场预约时间需严格遵守
+            </td>
+            <td>Hotel Giglio Dell's Opera<br>(含早)</td>
+        </tr>
+        
+        <!-- Day 3 -->
+        <tr>
+            <td>9.29<br>周六</td>
+            <td>罗马→佛罗伦萨</td>
+            <td><span class="train">火车(1h40m)</span></td>
+            <td>
+                <a href="#学院美术馆攻略" class="attraction-link">学院美术馆</a><br>
+                <a href="#圣母百花大教堂攻略" class="attraction-link">圣母百花大教堂</a><br>
+                <a href="#乌菲兹美术馆攻略" class="attraction-link">乌菲兹美术馆</a><br>
+                <a href="#米开朗基罗广场攻略" class="attraction-link">米开朗基罗广场</a>
+            </td>
+            <td class="ticket-info">
+                学院美术馆：12€，大卫像所在地<br>
+                乌菲兹美术馆：20€，建议提前预约<br>
+                圣母百花穹顶：18€含钟楼等
+            </td>
+            <td class="transport-info">
+                建议购买Firenze Card(72€)含主要景点<br>
+                火车票提前购买有折扣
+            </td>
+            <td>佛罗伦萨英迪格酒店<br>(IHG旗下)</td>
+        </tr>
+        
+        <!-- Day 4 -->
+        <tr>
+            <td>9.30<br>周日</td>
+            <td>佛罗伦萨→比萨→五渔村</td>
+            <td>
+                <span class="train">火车到比萨(1h)</span><br>
+                <span class="train">火车到La Spezia(1h)</span>
+            </td>
+            <td>
+                <a href="#比萨斜塔攻略" class="attraction-link">比萨斜塔</a><br>
+                <a href="#五渔村攻略" class="attraction-link">五渔村徒步</a>
+            </td>
+            <td class="ticket-info">
+                比萨斜塔：18€登顶<br>
+                五渔村火车通票：16€/天
+            </td>
+            <td class="transport-info">
+                比萨到La Spezia车次频繁<br>
+                购买五渔村通票(Cinque Terre Card)
+            </td>
+            <td>卡萨戴纳旅馆<br>(La Spezia)</td>
+        </tr>
+        
+        <!-- Day 5 -->
+        <tr>
+            <td>10.1<br>周一</td>
+            <td>五渔村→米兰</td>
+            <td>
+                <span class="train">火车到米兰(3h)</span>
+            </td>
+            <td>
+                <a href="#五渔村徒步攻略" class="attraction-link">五渔村徒步</a><br>
+                <a href="#米兰大教堂攻略" class="attraction-link">米兰大教堂</a>
+            </td>
+            <td class="ticket-info">
+                五渔村徒步：免费(部分路段需通票)<br>
+                米兰大教堂：16€含电梯登顶
+            </td>
+            <td class="transport-info">
+                建议走Monterosso-Vernazza段(2h)<br>
+                米兰中央车站到市区地铁方便
+            </td>
+            <td>米兰Airbnb</td>
+        </tr>
+        
+        <!-- Day 6 -->
+        <tr>
+            <td>10.2<br>周二</td>
+            <td>米兰→卢塞恩</td>
+            <td>
+                <span class="train">火车到卢塞恩(3h)</span>
+            </td>
+            <td>
+                <a href="#卢塞恩湖攻略" class="attraction-link">卢塞恩湖</a><br>
+                <a href="#卡佩尔桥攻略" class="attraction-link">卡佩尔桥</a>
+            </td>
+            <td class="ticket-info">
+                卢塞恩游船：可用瑞士通票<br>
+                狮子纪念碑：免费
+            </td>
+            <td class="transport-info">
+                建议购买瑞士旅行通票(Swiss Travel Pass)<br>
+                米兰到卢塞恩有直达火车
+            </td>
+            <td>查彼得卢塞恩胶囊酒店</td>
+        </tr>
+        
+        <!-- Day 7 -->
+        <tr>
+            <td>10.3<br>周三</td>
+            <td>卢塞恩</td>
+            <td>
+                <span class="walking">徒步</span>
+            </td>
+            <td>
+                <a href="#Stoos徒步攻略" class="attraction-link">Stoos徒步</a><br>
+                <a href="#卢塞恩老城攻略" class="attraction-link">卢塞恩老城</a>
+            </td>
+            <td class="ticket-info">
+                Stoos缆车：38€往返(有通票折扣)<br>
+                交通博物馆：32€
+            </td>
+            <td class="transport-info">
+                从卢塞恩乘船到Stoos起点<br>
+                徒步难度中等，需3-4小时
+            </td>
+            <td>查彼得卢塞恩胶囊酒店</td>
+        </tr>
+        
+        <!-- Day 8 -->
+        <tr>
+            <td>10.4<br>周四</td>
+            <td>卢塞恩→格林德瓦</td>
+            <td>
+                <span class="train">黄金列车(2h30m)</span>
+            </td>
+            <td>
+                <a href="#少女峰攻略" class="attraction-link">少女峰</a><br>
+                <a href="#First峰攻略" class="attraction-link">First峰</a>
+            </td>
+            <td class="ticket-info">
+                少女峰铁路：210€往返(通票75折)<br>
+                First峰缆车：64€往返
+            </td>
+            <td class="transport-info">
+                黄金列车需提前预订座位<br>
+                关注少女峰天气情况
+            </td>
+            <td>格林德瓦索南伯格酒店</td>
+        </tr>
+        
+        <!-- Day 9 -->
+        <tr>
+            <td>10.5<br>周五</td>
+            <td>格林德瓦→巴黎</td>
+            <td>
+                <span class="train">火车到巴黎(4h)</span>
+            </td>
+            <td>
+                <a href="#香榭丽舍大街攻略" class="attraction-link">香榭丽舍大街</a><br>
+                <a href="#巴黎圣母院攻略" class="attraction-link">巴黎圣母院</a>
+            </td>
+            <td class="ticket-info">
+                巴黎圣母院：免费(塔楼10€)<br>
+                凯旋门：13€登顶
+            </td>
+            <td class="transport-info">
+                需换乘TGV高速列车<br>
+                建议购买巴黎交通通票
+            </td>
+            <td>巴黎艾莎酒店</td>
+        </tr>
+        
+        <!-- Day 10 -->
+        <tr>
+            <td>10.6<br>周六</td>
+            <td>巴黎</td>
+            <td>
+                <span class="walking">步行/地铁</span>
+            </td>
+            <td>
+                <a href="#卢浮宫攻略" class="attraction-link">卢浮宫</a>
+            </td>
+            <td class="ticket-info">
+                卢浮宫：17€，每月第一个周六免费<br>
+                建议预约时间段
+            </td>
+            <td class="transport-info">
+                卢浮宫入口金字塔常排队<br>
+                可使用地铁1号线
+            </td>
+            <td>巴黎艾莎酒店</td>
+        </tr>
+        
+        <!-- Day 11 -->
+        <tr>
+            <td>10.7<br>周日</td>
+            <td>巴黎→上海</td>
+            <td>
+                <span class="flight">巴黎→上海</span>
+            </td>
+            <td>返程</td>
+            <td class="ticket-info">N/A</td>
+            <td class="transport-info">
+                建议提前3小时到机场<br>
+                戴高乐机场退税预留时间
+            </td>
+            <td>N/A</td>
+        </tr>
+    </table>
+
+    <h2>景点导航目的地</h2>
+    <ul>
+        <li><span class="nav-point">梵蒂冈博物馆</span>：导航至"Vatican Museums"</li>
+        <li><span class="nav-point">斗兽场</span>：导航至"Colosseo"地铁站</li>
+        <li><span class="nav-point">圣母百花大教堂</span>：导航至"Piazza del Duomo"</li>
+        <li><span class="nav-point">比萨斜塔</span>：导航至"Piazza dei Miracoli"</li>
+        <li><span class="nav-point">米兰大教堂</span>：导航至"Duomo di Milano"</li>
+        <li><span class="nav-point">少女峰</span>：导航至"Jungfraujoch"火车站</li>
+        <li><span class="nav-point">卢浮宫</span>：导航至"Musée du Louvre"</li>
+    </ul>
+
+    <h2>景点游玩攻略</h2>
+    <div id="attraction-guides">
+        <div id="梵蒂冈博物馆攻略" class="guide-section">
+            <h3>梵蒂冈博物馆</h3>
+            <p><strong>最佳时间：</strong>上午8:30开门，建议最早时段入场避开人流</p>
+            <p><strong>必看展品：</strong>西斯廷教堂(米开朗基罗壁画)、拉斐尔房间、螺旋楼梯</p>
+            <p><strong>参观建议：</strong>预约导览或提前研究路线，博物馆路线复杂</p>
+            <p><strong>着装要求：</strong>需遮盖肩膀和膝盖(提供披肩租赁)</p>
+            <a href="#" class="back-to-top">返回顶部</a>
+        </div>
+        
+        <div id="斗兽场攻略" class="guide-section">
+            <h3>罗马斗兽场</h3>
+            <p><strong>参观组合：</strong>建议购买包含古罗马广场和帕拉丁山的联票</p>
+            <p><strong>导览选择：</strong>地下层和顶层需额外预约导览</p>
+            <p><strong>摄影技巧：</strong>傍晚光线最佳，二层观景台可拍全景</p>
+            <p><strong>注意事项：</strong>安检严格，禁止携带大包</p>
+            <a href="#" class="back-to-top">返回顶部</a>
+        </div>
+        
+        <div id="圣母百花大教堂攻略" class="guide-section">
+            <h3>圣母百花大教堂</h3>
+            <p><strong>登顶建议：</strong>穹顶463级台阶，钟楼414级(二选一即可)</p>
+            <p><strong>最佳组合：</strong>购买"Brunelleschi Pass"含所有景点</p>
+            <p><strong>参观顺序：</strong>先参观地下考古区，再登顶</p>
+            <p><strong>特别提示：</strong>周日弥撒期间部分区域关闭</p>
+            <a href="#" class="back-to-top">返回顶部</a>
+        </div>
+        
+        <div id="五渔村徒步攻略" class="guide-section">
+            <h3>五渔村徒步</h3>
+            <p><strong>经典路线：</strong>Monterosso-Vernazza(3km/2h)风景最美</p>
+            <p><strong>交通通票：</strong>Cinque Terre Card含徒步许可和无限次火车</p>
+            <p><strong>装备建议：</strong>防滑徒步鞋，充足饮水，防晒用品</p>
+            <p><strong>美食推荐：</strong>Vernazza的炸海鲜，当地特色白葡萄酒</p>
+            <a href="#" class="back-to-top">返回顶部</a>
+        </div>
+        
+        <div id="少女峰攻略" class="guide-section">
+            <h3>少女峰</h3>
+            <p><strong>交通方式：</strong>从格林德瓦乘火车到Kleine Scheidegg换乘</p>
+            <p><strong>山顶设施：</strong>观景台、冰宫、餐厅(价格较高)</p>
+            <p><strong>高原反应：</strong>海拔3454米，避免剧烈运动</p>
+            <p><strong>天气关注：</strong>提前查询山顶能见度，云多则不值得前往</p>
+            <a href="#" class="back-to-top">返回顶部</a>
+        </div>
+        
+        <div id="卢浮宫攻略" class="guide-section">
+            <h3>卢浮宫</h3>
+            <p><strong>参观策略：</strong>提前规划路线，重点看"三大件"(蒙娜丽莎、胜利女神、维纳斯)</p>
+            <p><strong>入口选择：</strong>Carrousel du Louvre地下入口人较少</p>
+            <p><strong>导览工具：</strong>下载官方APP或租用语音导览</p>
+            <p><strong>休息建议：</strong>馆内有咖啡厅，杜乐丽花园适合休息</p>
+            <a href="#" class="back-to-top">返回顶部</a>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const map = L.map('map').setView([46.5, 8.5], 6);
+            
+            const baseLayers = {
+                "OpenStreetMap": L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                }).addTo(map),
+                "卫星地图": L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+                    attribution: 'Tiles &copy; Esri'
+                })
+            };
+            baseLayers["OpenStreetMap"].addTo(map);
+            L.control.layers(baseLayers).addTo(map);
+
+            // 路线数据
+            const routes = [
+                { // 罗马
+                    name: "罗马市内",
+                    points: [[41.9028,12.4964],[41.9075,12.4533]],
+                    type: "walking",
+                    color: "#16a085"
+                },
+                { // 罗马→佛罗伦萨
+                    name: "火车到佛罗伦萨",
+                    points: [[41.9028,12.4964],[43.7696,11.2558]],
+                    type: "train",
+                    color: "#e67e22"
+                },
+                { // 佛罗伦萨→比萨→五渔村
+                    name: "火车到比萨→五渔村",
+                    points: [[43.7696,11.2558],[43.7228,10.4017],[44.1349,9.6849]],
+                    type: "train",
+                    color: "#e67e22"
+                },
+                { // 五渔村→米兰
+                    name: "火车到米兰",
+                    points: [[44.1349,9.6849],[45.4642,9.1900]],
+                    type: "train",
+                    color: "#e67e22"
+                },
+                { // 米兰→卢塞恩
+                    name: "火车到卢塞恩",
+                    points: [[45.4642,9.1900],[47.0502,8.3093]],
+                    type: "train",
+                    color: "#e67e22"
+                },
+                { // 卢塞恩→格林德瓦
+                    name: "黄金列车",
+                    points: [[47.0502,8.3093],[46.6249,8.0320]],
+                    type: "train",
+                    color: "#e67e22"
+                },
+                { // 格林德瓦→巴黎
+                    name: "火车到巴黎",
+                    points: [[46.6249,8.0320],[48.8566,2.3522]],
+                    type: "train",
+                    color: "#e67e22"
+                }
+            ];
+
+            // 绘制所有路线
+            routes.forEach(route => {
+                const line = L.polyline(route.points, {
+                    color: route.color,
+                    weight: 4,
+                    opacity: 0.8
+                }).bindPopup(`<b>${route.name}</b><br>类型: ${
+                    route.type === "train" ? "火车" : 
+                    route.type === "walking" ? "步行" : "飞机"
+                }`).addTo(map);
+                
+                // 添加路线标签
+                const midPoint = line.getCenter();
+                L.marker(midPoint, {
+                    icon: L.divIcon({
+                        html: `<div class="horizontal-label" style="border-color:${route.color};color:${route.color}">${route.name}</div>`,
+                        className: 'route-label',
+                        iconSize: null
+                    })
+                }).addTo(map);
+            });
+
+            // 添加标记点
+            const markers = [
+                // 主要城市
+                {pos:[41.9028,12.4964], title:"罗马", type:"scenic"},
+                {pos:[43.7696,11.2558], title:"佛罗伦萨", type:"scenic"},
+                {pos:[44.1349,9.6849], title:"五渔村", type:"scenic"},
+                {pos:[45.4642,9.1900], title:"米兰", type:"scenic"},
+                {pos:[47.0502,8.3093], title:"卢塞恩", type:"scenic"},
+                {pos:[46.6249,8.0320], title:"格林德瓦", type:"scenic"},
+                {pos:[48.8566,2.3522], title:"巴黎", type:"scenic"},
+                
+                // 主要景点
+                {pos:[41.9029,12.4534], title:"梵蒂冈", type:"scenic"},
+                {pos:[43.7733,11.2560], title:"圣母百花大教堂", type:"scenic"},
+                {pos:[43.7230,10.3965], title:"比萨斜塔", type:"scenic"},
+                {pos:[46.5366,8.0784], title:"少女峰", type:"scenic"},
+                {pos:[48.8606,2.3376], title:"卢浮宫", type:"scenic"}
+            ];
+            
+            markers.forEach(marker => {
+                const icon = L.divIcon({
+                    html: `<div style="background-color:#2ecc71;border-radius:50%;width:20px;height:20px;text-align:center;color:white;font-weight:bold;">${marker.type === "scenic" ? '🌍' : '🏨'}</div>`,
+                    className: '',
+                    iconSize: [20, 20]
+                });
+                
+                L.marker(marker.pos, {icon: icon})
+                    .bindPopup(`<b>${marker.title}</b>`)
+                    .addTo(map);
+            });
+
+            // 平滑滚动效果
+            document.querySelectorAll('.attraction-link').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href');
+                    document.querySelector(targetId).scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                });
+            });
+
+            document.querySelectorAll('.back-to-top').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    window.scrollTo({
+                        top: 0,
+                        behavior: 'smooth'
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+</html>
