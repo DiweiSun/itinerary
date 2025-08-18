@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>郑州 → 西宁 4天3夜 国道慢旅行程</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <style>
+        body {
+            font-family: 'Microsoft YaHei', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 1800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #2980b9;
+            border-left: 4px solid #3498db;
+            padding-left: 10px;
+        }
+        #map {
+            height: 600px;
+            margin: 20px 0;
+            border: 2px solid #3498db;
+            border-radius: 8px;
+        }
+        .itinerary-table {
+            width: 100%;
+            border-collapse: collapse;
+            white-space: nowrap;
+            margin: 20px 0;
+            background-color: white;
+            box-shadow: 0 2px 3px rgba(0,0,0,0.1);
+        }
+        .itinerary-table th, .itinerary-table td {
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+        }
+        .itinerary-table th {
+            background-color: #3498db;
+            color: white;
+        }
+        .highway {
+            color: #e67e22;
+            font-weight: bold;
+        }
+        .national-road {
+            color: #16a085;
+            font-weight: bold;
+        }
+        .special-road {
+            color: #9b59b6;
+            font-weight: bold;
+        }
+        .flight-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        .flight-table th, .flight-table td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+        .flight-table th {
+            background-color: #3498db;
+            color: white;
+        }
+        .map-legend {
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 0 5px rgba(0,0,0,0.2);
+            line-height: 1.8;
+        }
+        .horizontal-label {
+            white-space: nowrap;
+            display: inline-block;
+            font-size: 14px;
+            text-shadow: 1px 1px 2px white;
+            padding: 2px 8px;
+            background: rgba(255,255,255,0.7);
+            border-radius: 4px;
+            border: 1px solid currentColor;
+            transform: translate(-50%, 0);
+            pointer-events: none;
+        }
+        .ticket-info {
+            font-size: 14px;
+        }
+        .gas-info {
+            font-size: 14px;
+            color: #f39c12;
+        }
+        .nav-point {
+            font-size: 14px;
+            color: #2ecc71;
+        }
+        .attraction-link {
+            color: #2980b9;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s;
+            border-bottom: 1px dashed #3498db;
+            padding-bottom: 1px;
+        }
+        .attraction-link:hover {
+            color: #e74c3c;
+            border-bottom: 1px solid #e74c3c;
+        }
+        .guide-section {
+            margin-bottom: 30px;
+            padding: 15px;
+            background: #f9f9f9;
+            border-left: 4px solid #3498db;
+        }
+        .back-to-top {
+            display: block;
+            text-align: right;
+            color: #7f8c8d;
+            font-size: 0.9em;
+        }
+        .collection-item {
+            margin-bottom: 8px;
+            padding-left: 16px;
+            position: relative;
+        }
+        .collection-item:before {
+            content: "📍";
+            position: absolute;
+            left: 0;
+            top: 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>郑州 → 西宁 4天3夜 国道慢旅行程（2025版）</h1>
+
+    <div id="map"></div>
+    <div class="map-legend">
+        <strong>地图图例：</strong><br>
+        <span class="highway">■ 高速公路</span> | 
+        <span class="national-road">■ 国道</span> | 
+        <span class="special-road">■ 特殊路段</span>
+    </div>
+
+    <h2>完整行程表（含详细路型）</h2>
+    <table class="itinerary-table">
+        <tr>
+            <th>天数</th>
+            <th>起止点</th>
+            <th>里程</th>
+            <th>用时</th>
+            <th>详细路线</th>
+            <th>主要景点</th>
+            <th>票务信息</th>
+            <th>推荐加油点</th>
+            <th>住宿</th>
+        </tr>
+
+        <!-- Day 1 -->
+        <tr>
+            <td>D1<br>8/18</td>
+            <td>郑州 → 天水</td>
+            <td>680km</td>
+            <td>10.5–11.5h</td>
+            <td>
+                <span class="highway">G30 连霍高速</span>（郑州-三门峡西，约350km）<br>
+                <span class="national-road">G310 国道</span>（三门峡西-宝鸡-天水，约330km）
+            </td>
+            <td>
+                <a href="#函谷关" class="attraction-link">函谷关遗址（远眺）</a><br>
+                <a href="#潼关古城" class="attraction-link">潼关古城南门</a><br>
+                <a href="#宝鸡北坡" class="attraction-link">宝鸡北坡观景台</a>
+            </td>
+            <td class="ticket-info">沿途景点均免费，可远观或短停</td>
+            <td class="gas-info">
+                三门峡西服务区<br>
+                陇县中石化加油站（转国道前）
+            </td>
+            <td>天水秦州区伏羲庙附近酒店<br>（推荐：天水中心广场亚朵）</td>
+        </tr>
+
+        <!-- Day 2 -->
+        <tr>
+            <td>D2<br>8/19</td>
+            <td>天水 → 陇南武都</td>
+            <td>300km</td>
+            <td>8–9h</td>
+            <td>
+                <span class="national-road">G316 国道</span>（天水-礼县-西和）<br>
+                <span class="special-road">S306 省道</span>（西和-武都，穿越秦巴山区）
+            </td>
+            <td>
+                <a href="#礼县盐官" class="attraction-link">礼县盐官镇（秦人发源地）</a><br>
+                <a href="#白龙江谷地" class="attraction-link">白龙江河谷风光</a><br>
+                <a href="#武都万象洞" class="attraction-link">万象洞（可选）</a>
+            </td>
+            <td class="ticket-info">
+                万象洞：门票50元，可现场购票<br>
+                其余景点免费
+            </td>
+            <td class="gas-info">
+                天水秦州区加油站<br>
+                陇南武都区江南加油站（必加）
+            </td>
+            <td>陇南武都区江南大酒店<br>（近G212主干道）</td>
+        </tr>
+
+        <!-- Day 3 -->
+        <tr>
+            <td>D3<br>8/20</td>
+            <td>武都 → 合作</td>
+            <td>260km</td>
+            <td>7.5–8.5h</td>
+            <td>
+                <span class="national-road">G345 国道</span>（武都-舟曲，穿越岷山）<br>
+                <span class="national-road">G568 国道</span>（舟曲-合作，进入甘南高原）
+            </td>
+            <td>
+                <a href="#舟曲拉尕山" class="attraction-link">拉尕山风景区（远观）</a><br>
+                <a href="#当周草原" class="attraction-link">当周草原</a><br>
+                <a href="#米拉沟" class="attraction-link">米拉沟生态公园</a>
+            </td>
+            <td class="ticket-info">沿途免费，草原可短暂停靠</td>
+            <td class="gas-info">
+                舟曲县城加油站<br>
+                <strong>合作市中石油加油站（必须加满）</strong>
+            </td>
+            <td>合作市香巴拉文化广场附近<br>（推荐：甘南香巴拉大酒店）</td>
+        </tr>
+
+        <!-- Day 4 -->
+        <tr>
+            <td>D4<br>8/21</td>
+            <td>合作 → 西宁</td>
+            <td>330km</td>
+            <td>8–9h</td>
+            <td>
+                <span class="national-road">G248 国道</span>（合作-夏河，经甘加草原）<br>
+                <span class="highway">G6 京藏高速辅路</span>（海东-西宁，最后80km）
+            </td>
+            <td>
+                <a href="#拉卜楞寺" class="attraction-link">拉卜楞寺（远眺）</a><br>
+                <a href="#甘加草原" class="attraction-link">甘加草原</a><br>
+                <a href="#东乡黄河大桥" class="attraction-link">东乡黄河大桥（青海界）</a>
+            </td>
+            <td class="ticket-info">沿途景点免费，适合拍照休整</td>
+            <td class="gas-info">
+                夏河县加油站<br>
+                海东市平安区加油站
+            </td>
+            <td>西宁市区（推荐：东关清真大寺附近）<br>（如：西宁凯瑞丽晶酒店）</td>
+        </tr>
+    </table>
+
+    <!-- 新增：高德收藏夹完整内容 -->
+    <div class="guide-section">
+        <h2>📌 高德地图收藏夹：「郑西慢旅」完整点位清单</h2>
+        <p><strong>收藏夹名称</strong>：「郑西慢旅」郑州→西宁 4天3夜 国道慢行记（2025）</p>
+        <p><strong>创建路径</strong>：高德地图 → 我的 → 收藏 → 创建收藏夹 → 添加以下全部地点</p>
+
+        <h3>📅 D1：郑州 → 天水（680km｜10.5–11.5h）</h3>
+        <div class="collection-item"><strong>1. 郑州二七广场（出发点）</strong> - 起点，建议8:00前出发</div>
+        <div class="collection-item"><strong>2. 陕州收费站（G30下道口）</strong> - 约350km处，准备转G310国道</div>
+        <div class="collection-item"><strong>3. G310与G30交汇口（灵宝附近）</strong> - 标志性路口，注意导航提示</div>
+        <div class="collection-item"><strong>4. 函谷关景区外观景台</strong> - 可停车拍照，老子“紫气东来”地</div>
+        <div class="collection-item"><strong>5. 潼关古城南门（黄河远眺）</strong> - 三省交界，黄河拐弯处</div>
+        <div class="collection-item"><strong>6. 宝鸡北坡观景台</strong> - 俯瞰宝鸡城与渭河</div>
+        <div class="collection-item"><strong>7. 陇县中石化加油站</strong> - 建议补油，国道段加油站减少</div>
+        <div class="collection-item"><strong>8. 天水伏羲庙（住宿区）</strong> - 推荐住秦州区，近夜市美食</div>
+
+        <h3>📅 D2：天水 → 陇南武都（300km｜8–9h）</h3>
+        <div class="collection-item"><strong>9. 天水市秦州区（出发）</strong> - 建议8:00出发，避开早高峰</div>
+        <div class="collection-item"><strong>10. 礼县盐官镇（古盐道）</strong> - 秦人发源地，路边可拍老街</div>
+        <div class="collection-item"><strong>11. 西和县长道镇</strong> - G316沿线小镇，可短暂休息</div>
+        <div class="collection-item"><strong>12. 西高山镇（S306入口）</strong> - 进入陇南前最后一段山路</div>
+        <div class="collection-item"><strong>13. 武都外纳镇（白龙江入口）</strong> - 河谷风光，藏羌过渡地带</div>
+        <div class="collection-item"><strong>14. 陇南武都区江南加油站</strong> - 建议补满，明日进甘南</div>
+
+        <h3>📅 D3：武都 → 合作市（260km｜7.5–8.5h）</h3>
+        <div class="collection-item"><strong>15. 合作市当周草原入口</strong> - 可中途停靠，草原+藏式经幡</div>
+        <div class="collection-item"><strong>16. 合作市中石油加油站</strong> - 必须补满油！高原路段加油站稀疏</div>
+        <div class="collection-item"><strong>17. 合作市香巴拉文化广场（住宿）</strong> - 推荐住市区，海拔约2900米</div>
+
+        <h3>📅 D4：合作 → 西宁（330km｜8–9h）</h3>
+        <div class="collection-item"><strong>18. G316与G568交汇口（王夏高速口）</strong> - 出发点，导航走辅路</div>
+        <div class="collection-item"><strong>19. 夏河县拉卜楞寺远眺点</strong> - 可短停远拍，不进景区</div>
+        <div class="collection-item"><strong>20. 甘加草原（G248沿线）</strong> - 开阔草原，牛羊成群</div>
+        <div class="collection-item"><strong>21. 海东市平安区（G6辅路入口）</strong> - 进青海后走G6高速辅路</div>
+        <div class="collection-item"><strong>22. 西宁市中心（东关清真大寺）</strong> - 终点！抵达西宁</div>
+    </div>
+
+    <div class="guide-section">
+        <h2>🚗 行程说明与建议</h2>
+        <p><strong>• 路线特点</strong>：全程以国道为主，穿行秦岭、陇南山地、甘南高原，风景原始，适合慢旅行程。D1最耗时，建议早出发。</p>
+        <p><strong>• 加油提示</strong>：进入甘南后加油站减少，建议在 <strong>陇南武都、合作市、夏河县</strong> 三地加满油。</p>
+        <p><strong>• 高原适应</strong>：D3起海拔升至2900m（合作），注意防高反，备氧气瓶、红景天，避免剧烈运动。</p>
+        <p><strong>• 导航准备</strong>：建议提前下载 <strong>陕西、甘肃、青海</strong> 离线地图，山区信号不稳定。</p>
+        <p><strong>• 安全驾驶</strong>：山区弯道多，限速频繁，避免夜间行车，每2小时进服务区休息。</p>
+    </div>
+
+    <div class="guide-section">
+        <h2>📱 高德地图使用技巧</h2>
+        <ul>
+            <li><strong>创建收藏夹</strong>：命名为「郑西慢旅」，将上述22个点全部添加</li>
+            <li><strong>离线地图</strong>：下载陕西、甘肃、青海全境离线包</li>
+            <li><strong>语音提醒</strong>：开启“途经点播报”，避免错过转接路口</li>
+            <li><strong>分享功能</strong>：生成链接或二维码，发给同行车辆</li>
+        </ul>
+    </div>
+
+    <p class="back-to-top">↑ 返回顶部</p>
+
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const map = L.map('map').setView([34.5, 105.0], 6);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; OpenStreetMap contributors'
+            }).addTo(map);
+
+            // 添加行程关键城市标记
+            L.marker([34.75, 113.66]).addTo(map).bindPopup("📍 郑州（出发）");
+            L.marker([34.58, 105.72]).addTo(map).bindPopup("📍 天水（D1）");
+            L.marker([33.40, 104.92]).addTo(map).bindPopup("📍 陇南武都（D2）");
+            L.marker([35.00, 102.90]).addTo(map).bindPopup("📍 合作（D3）");
+            L.marker([36.62, 101.78]).addTo(map).bindPopup("📍 西宁（终点）");
+        });
+    </script>
+</body>
+</html>
