@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>郑州 → 西宁 4天3夜 国道慢旅行程（西安后走国道版）</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <style>
+        body {
+            font-family: 'Microsoft YaHei', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 1800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #2980b9;
+            border-left: 4px solid #3498db;
+            padding-left: 10px;
+        }
+        #map {
+            height: 600px;
+            margin: 20px 0;
+            border: 2px solid #3498db;
+            border-radius: 8px;
+        }
+        .itinerary-table {
+            width: 100%;
+            border-collapse: collapse;
+            white-space: nowrap;
+            margin: 20px 0;
+            background-color: white;
+            box-shadow: 0 2px 3px rgba(0,0,0,0.1);
+        }
+        .itinerary-table th, .itinerary-table td {
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+        }
+        .itinerary-table th {
+            background-color: #3498db;
+            color: white;
+        }
+        .highway {
+            color: #e67e22;
+            font-weight: bold;
+        }
+        .national-road {
+            color: #16a085;
+            font-weight: bold;
+        }
+        .attraction-link {
+            color: #2980b9;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s;
+            border-bottom: 1px dashed #3498db;
+            padding-bottom: 1px;
+        }
+        .attraction-link:hover {
+            color: #e74c3c;
+            border-bottom: 1px solid #e74c3c;
+        }
+        .guide-section {
+            margin-bottom: 30px;
+            padding: 15px;
+            background: #f9f9f9;
+            border-left: 4px solid #3498db;
+        }
+        .back-to-top {
+            display: block;
+            text-align: right;
+            color: #7f8c8d;
+            font-size: 0.9em;
+        }
+        .collection-item {
+            margin-bottom: 8px;
+            padding-left: 16px;
+            position: relative;
+        }
+        .collection-item:before {
+            content: "📍";
+            position: absolute;
+            left: 0;
+            top: 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>郑州 → 西宁 4天3夜 国道慢旅行程（西安后走国道版）</h1>
+
+    <div id="map"></div>
+    <div class="map-legend">
+        <strong>地图图例：</strong><br>
+        <span class="highway">■ 高速公路</span> | 
+        <span class="national-road">■ 国道</span>
+    </div>
+
+    <h2>完整行程表（西安后全程国道为主）</h2>
+    <table class="itinerary-table">
+        <tr>
+            <th>天数</th>
+            <th>起止点</th>
+            <th>里程</th>
+            <th>用时</th>
+            <th>详细路线</th>
+            <th>主要景点</th>
+            <th>票务信息</th>
+            <th>推荐加油点</th>
+            <th>住宿</th>
+        </tr>
+
+        <!-- Day 1 -->
+        <tr>
+            <td>D1<br>8/18</td>
+            <td>郑州 → 西安</td>
+            <td>500km</td>
+            <td>5.5h</td>
+            <td><span class="highway">G30 连霍高速 全程</span></td>
+            <td>
+                <a href="#兵马俑" class="attraction-link">兵马俑（可选）</a><br>
+                <a href="#大雁塔" class="attraction-link">大雁塔夜景</a>
+            </td>
+            <td>兵马俑120元，夜景免费</td>
+            <td>郑州出发前加满</td>
+            <td>西安钟楼附近酒店</td>
+        </tr>
+
+        <!-- Day 2 -->
+        <tr>
+            <td>D2<br>8/19</td>
+            <td>西安 → 天水</td>
+            <td>330km</td>
+            <td>6–7h</td>
+            <td>
+                <span class="national-road">G310 国道 全程</span>（经周至、眉县、宝鸡）
+            </td>
+            <td>
+                <a href="#宝鸡北坡" class="attraction-link">宝鸡北坡观景台</a><br>
+                <a href="#麦积山" class="attraction-link">麦积山石窟（远眺）</a><br>
+                <a href="#天水南郭寺" class="attraction-link">南郭寺（杜甫流寓地）</a>
+            </td>
+            <td>麦积山90元，南郭寺20元</td>
+            <td>
+                西安出发前加满<br>
+                宝鸡蔡家坡加油站
+            </td>
+            <td>天水秦州区酒店</td>
+        </tr>
+
+        <!-- Day 3 -->
+        <tr>
+            <td>D3<br>8/20</td>
+            <td>天水 → 陇西 → 兰州</td>
+            <td>420km</td>
+            <td>8–9h</td>
+            <td>
+                <span class="national-road">G310 国道</span>（天水-甘谷）<br>
+                <span class="national-road">G316 国道</span>（甘谷-陇西）<br>
+                <span class="national-road">G227 → G109 国道</span>（陇西-定西-兰州）
+            </td>
+            <td>
+                <a href="#渭源灞陵桥" class="attraction-link">灞陵桥（陇西）</a><br>
+                <a href="#定西马铃薯博物馆" class="attraction-link">定西马铃薯文化馆（可选）</a><br>
+                <a href="#兰州黄河" class="attraction-link">黄河风情线</a>
+            </td>
+            <td>灞陵桥15元，其余免费</td>
+            <td>
+                天水出发前加满<br>
+                <strong>陇西加油站（必加）</strong><br>
+                兰州东岗立交附近
+            </td>
+            <td>兰州城关区黄河边酒店</td>
+        </tr>
+
+        <!-- Day 4 -->
+        <tr>
+            <td>D4<br>8/21</td>
+            <td>兰州 → 西宁</td>
+            <td>220km</td>
+            <td>5–6h</td>
+            <td>
+                <span class="national-road">G109 国道</span>（全程，经河口古镇、民和、平安）
+            </td>
+            <td>
+                <a href="#河口古镇" class="attraction-link">河口古镇（兰州西门户）</a><br>
+                <a href="#刘家峡水库" class="attraction-link">刘家峡水库（黄河清浊交汇）</a><br>
+                <a href="#东关清真大寺" class="attraction-link">西宁东关清真大寺</a>
+            </td>
+            <td>河口古镇免费，刘家峡远眺免费</td>
+            <td>兰州出发前加满即可</td>
+            <td>西宁市区终点酒店</td>
+        </tr>
+    </table>
+
+    <!-- 高德收藏夹 -->
+    <div class="guide-section">
+        <h2>📌 高德收藏夹：「郑西国道线」完整点位清单</h2>
+        <p><strong>收藏夹名称</strong>：「郑西国道线」郑州→西安→天水→兰州→西宁（4天3夜｜国道为主）</p>
+
+        <h3>📅 D1：郑州 → 西安</h3>
+        <div class="collection-item"><strong>1. 郑州二七广场（出发）</strong></div>
+        <div class="collection-item"><strong>2. 洛阳东服务区（G30）</strong></div>
+        <div class="collection-item"><strong>3. 西安钟楼（住宿）</strong></div>
+
+        <h3>📅 D2：西安 → 天水（G310国道）</h3>
+        <div class="collection-item"><strong>4. 西安周至县（G310入口）</strong></div>
+        <div class="collection-item"><strong>5. 宝鸡北坡观景台</strong></div>
+        <div class="collection-item"><strong>6. 天水麦积山远眺点</strong></div>
+        <div class="collection-item"><strong>7. 天水南郭寺</strong></div>
+
+        <h3>📅 D3：天水 → 陇西 → 兰州</h3>
+        <div class="collection-item"><strong>8. 甘谷县（G310转G316）</strong></div>
+        <div class="collection-item"><strong>9. 渭源灞陵桥景区</strong></div>
+        <div class="collection-item"><strong>10. 陇西文峰镇加油站（必加）</strong></div>
+        <div class="collection-item"><strong>11. 定西市区（G109入口）</strong></div>
+        <div class="collection-item"><strong>12. 兰州中山桥</strong></div>
+
+        <h3>📅 D4：兰州 → 西宁（G109国道）</h3>
+        <div class="collection-item"><strong>13. 河口古镇（G109起点）</strong></div>
+        <div class="collection-item"><strong>14. 刘家峡大桥（黄河观景点）</strong></div>
+        <div class="collection-item"><strong>15. 民和县（青海界）</strong></div>
+        <div class="collection-item"><strong>16. 平安驿·袁家村（小吃）</strong></div>
+        <div class="collection-item"><strong>17. 西宁东关清真大寺（终点）</strong></div>
+    </div>
+
+    <div class="guide-section">
+        <h2>🚗 路线亮点与建议</h2>
+        <ul>
+            <li><strong>国道之美</strong>：G310 是贯穿中国东西的“国道之王”，G109 是青藏线起点，历史感十足</li>
+            <li><strong>风景层次</strong>：秦岭绿意 → 渭河谷地 → 黄土高原 → 黄河峡谷 → 青藏门户</li>
+            <li><strong>驾驶提示</strong>：国道限速多（40–60km/h），注意村庄、学校、弯道</li>
+            <li><strong>加油策略</strong>：陇西、兰州、西宁是三大补给点，务必提前加满</li>
+            <li><strong>高原适应</strong>：西宁海拔2275米，D4抵达后避免剧烈运动</li>
+        </ul>
+    </div>
+
+    <p class="back-to-top">↑ 返回顶部</p>
+
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const map = L.map('map').setView([35.0, 107.0], 6);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; OpenStreetMap contributors'
+            }).addTo(map);
+
+            // 标记关键城市
+            L.marker([34.75, 113.66]).addTo(map).bindPopup("📍 郑州（出发）");
+            L.marker([34.34, 108.94]).addTo(map).bindPopup("📍 西安（D1）");
+            L.marker([34.58, 105.72]).addTo(map).bindPopup("📍 天水（D2）");
+            L.marker([35.00, 104.00]).addTo(map).bindPopup("📍 陇西（D3）");
+            L.marker([36.06, 103.83]).addTo(map).bindPopup("📍 兰州（D3）");
+            L.marker([36.62, 101.78]).addTo(map).bindPopup("📍 西宁（终点）");
+        });
+    </script>
+</body>
+</html>
