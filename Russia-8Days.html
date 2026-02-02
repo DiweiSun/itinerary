@@ -155,9 +155,13 @@
     <div id="map"></div>
     <div class="map-legend">
         <strong>地图图例：</strong><br>
-        <span class="flight-segment">✈ 航班</span> | 
-        <span class="drive-segment">🚗 自驾路线</span> | 
-        <span class="city-segment">🏛 城市游览</span>
+        <span style="color:#805ad5;font-weight:bold">- - - 航班路线</span> | 
+        <span style="color:#38a169;font-weight:bold">—— 自驾路线</span> | 
+        <span style="color:#63b3ed">- - 北极圈</span><br>
+        <span style="display:inline-block;background:#e53e3e;color:white;border-radius:50%;width:20px;height:20px;text-align:center;line-height:20px;font-size:12px;font-weight:bold">1</span> 莫斯科 | 
+        <span style="display:inline-block;background:#3182ce;color:white;border-radius:50%;width:20px;height:20px;text-align:center;line-height:20px;font-size:12px;font-weight:bold">2</span> 摩尔曼斯克 | 
+        <span style="display:inline-block;background:#38a169;color:white;border-radius:50%;width:20px;height:20px;text-align:center;line-height:20px;font-size:12px;font-weight:bold">3</span> 捷里别尔卡 | 
+        <span style="display:inline-block;background:#805ad5;color:white;border-radius:50%;width:20px;height:20px;text-align:center;line-height:20px;font-size:12px;font-weight:bold">4</span> 圣彼得堡
     </div>
 
     <h2>完整行程表</h2>
@@ -516,13 +520,12 @@
             };
             L.control.layers(baseLayers).addTo(map);
 
-            // 城市坐标
+            // 四个主要城市坐标
             const cities = {
-                moscow: [55.7558, 37.6173],
-                murmansk: [68.9585, 33.0827],
-                teriberka: [69.1640, 35.1348],
-                stpetersburg: [59.9343, 30.3351],
-                pushkin: [59.7161, 30.3958] // 叶卡捷琳娜宫
+                moscow: [55.7558, 37.6173],        // 莫斯科
+                murmansk: [68.9585, 33.0827],      // 摩尔曼斯克
+                teriberka: [69.1640, 35.1348],     // 捷里别尔卡
+                stpetersburg: [59.9343, 30.3351]   // 圣彼得堡
             };
 
             // 航线（虚线）
@@ -558,31 +561,55 @@
                 })
             }).addTo(map);
 
-            // 城市/景点标记
+            // 四个主要城市标记
             const markers = [
-                {pos: cities.moscow, title: "莫斯科 Moscow", type: "city", desc: "红场、克里姆林宫、地铁站"},
-                {pos: cities.murmansk, title: "摩尔曼斯克 Murmansk", type: "city", desc: "世界最北麦当劳、列宁号破冰船"},
-                {pos: cities.teriberka, title: "捷里别尔卡 Teriberka", type: "aurora", desc: "北冰洋、极光、观鲸"},
-                {pos: cities.stpetersburg, title: "圣彼得堡 St. Petersburg", type: "city", desc: "冬宫、涅瓦大街、喀山大教堂"},
-                {pos: cities.pushkin, title: "叶卡捷琳娜宫", type: "scenic", desc: "普希金市，琥珀宫"}
+                {pos: cities.moscow, title: "莫斯科 Moscow", label: "1", desc: "D1-D2: 红场、克里姆林宫、地铁站", color: "#e53e3e"},
+                {pos: cities.murmansk, title: "摩尔曼斯克 Murmansk", label: "2", desc: "D3/D5-D6: 最北麦当劳、列宁号破冰船", color: "#3182ce"},
+                {pos: cities.teriberka, title: "捷里别尔卡 Teriberka", label: "3", desc: "D3-D5: 北冰洋、极光、观鲸", color: "#38a169"},
+                {pos: cities.stpetersburg, title: "圣彼得堡 St. Petersburg", label: "4", desc: "D6-D8: 冬宫、涅瓦大街、叶卡捷琳娜宫", color: "#805ad5"}
             ];
             
-            const iconType = {
-                city: {color:'#2b6cb0', emoji:'🏛'},
-                aurora: {color:'#48bb78', emoji:'🌌'},
-                scenic: {color:'#ed8936', emoji:'🏰'}
-            };
-            
             markers.forEach(marker => {
+                // 圆形数字标记
                 const icon = L.divIcon({
-                    html: `<div style="background-color:${iconType[marker.type].color};border-radius:50%;width:28px;height:28px;text-align:center;line-height:28px;font-size:16px;">${iconType[marker.type].emoji}</div>`,
+                    html: `<div style="
+                        background-color:${marker.color};
+                        border-radius:50%;
+                        width:32px;
+                        height:32px;
+                        text-align:center;
+                        line-height:32px;
+                        font-size:18px;
+                        font-weight:bold;
+                        color:white;
+                        border:3px solid white;
+                        box-shadow:0 2px 6px rgba(0,0,0,0.3);
+                    ">${marker.label}</div>`,
                     className: '',
-                    iconSize: [28, 28]
+                    iconSize: [32, 32],
+                    iconAnchor: [16, 16]
                 });
                 
                 L.marker(marker.pos, {icon: icon})
                     .bindPopup(`<b>${marker.title}</b><br>${marker.desc}`)
                     .addTo(map);
+                
+                // 添加城市名称标签
+                L.marker(marker.pos, {
+                    icon: L.divIcon({
+                        html: `<div style="
+                            white-space:nowrap;
+                            font-size:12px;
+                            font-weight:bold;
+                            color:${marker.color};
+                            text-shadow:1px 1px 2px white, -1px -1px 2px white;
+                            margin-top:20px;
+                        ">${marker.title.split(' ')[0]}</div>`,
+                        className: '',
+                        iconSize: null,
+                        iconAnchor: [-20, 0]
+                    })
+                }).addTo(map);
             });
 
             // 添加北极圈线
