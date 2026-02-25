@@ -1,0 +1,1158 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>英爱12日精华·自驾连游全路线</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <style>
+        body {
+            font-family: 'Microsoft YaHei', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 1800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f0f4f8;
+        }
+        h1 {
+            color: #1a365d;
+            text-align: center;
+            border-bottom: 2px solid #2b6cb0;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #2b6cb0;
+            border-left: 4px solid #4299e1;
+            padding-left: 10px;
+        }
+        #map {
+            height: 600px;
+            margin: 20px 0;
+            border: 2px solid #4299e1;
+            border-radius: 8px;
+        }
+        .itinerary-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background-color: white;
+            box-shadow: 0 2px 3px rgba(0,0,0,0.1);
+        }
+        .itinerary-table th, .itinerary-table td {
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            vertical-align: top;
+        }
+        .itinerary-table th {
+            background-color: #2b6cb0;
+            color: white;
+        }
+        .flight-segment {
+            color: #805ad5;
+            font-weight: bold;
+        }
+        .train-segment {
+            color: #805ad5;
+            font-weight: bold;
+        }
+        .drive-segment {
+            color: #38a169;
+            font-weight: bold;
+        }
+        .city-segment {
+            color: #dd6b20;
+            font-weight: bold;
+        }
+        .scotland-highlight {
+            background-color: #ebf8ff;
+        }
+        .ireland-highlight {
+            background-color: #f0fff4;
+        }
+        .flight-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        .flight-table th, .flight-table td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+        .flight-table th {
+            background-color: #2b6cb0;
+            color: white;
+        }
+        .map-legend {
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 0 5px rgba(0,0,0,0.2);
+            line-height: 1.8;
+        }
+        .horizontal-label {
+            white-space: nowrap;
+            display: inline-block;
+            font-size: 14px;
+            text-shadow: 1px 1px 2px white;
+            padding: 2px 8px;
+            background: rgba(255,255,255,0.7);
+            border-radius: 4px;
+            border: 1px solid currentColor;
+            transform: translate(-50%, 0);
+            pointer-events: none;
+        }
+        .attraction-link {
+            color: #2b6cb0;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s;
+            border-bottom: 1px dashed #4299e1;
+            padding-bottom: 1px;
+        }
+        .attraction-link:hover {
+            color: #c53030;
+            border-bottom: 1px solid #c53030;
+        }
+        .guide-section {
+            margin-bottom: 30px;
+            padding: 15px;
+            background: #f9f9f9;
+            border-left: 4px solid #4299e1;
+        }
+        .back-to-top {
+            display: block;
+            text-align: right;
+            color: #7f8c8d;
+            font-size: 0.9em;
+        }
+        .nav-point {
+            font-size: 14px;
+            color: #38a169;
+        }
+        .scenic-badge {
+            display: inline-block;
+            background: linear-gradient(45deg, #38a169, #3182ce, #805ad5);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            margin-left: 5px;
+        }
+        .hp-badge {
+            display: inline-block;
+            background: linear-gradient(45deg, #c53030, #dd6b20);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            margin-left: 5px;
+        }
+        .note-box {
+            background: #fffbeb;
+            border-left: 4px solid #f6e05e;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        .phase-header {
+            background: #ebf4ff;
+            border-left: 4px solid #3182ce;
+            padding: 10px 15px;
+            margin: 25px 0 10px 0;
+            font-size: 16px;
+            font-weight: bold;
+            color: #1a365d;
+        }
+        .undecided {
+            color: #a0aec0;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <h1>英爱12日精华·自驾连游全路线 🇬🇧🇮🇪</h1>
+    
+    <div class="note-box">
+        <strong>行程亮点：</strong>伦敦人文深度 → 剑桥学术 → 约克中世纪古城 → 爱丁堡古堡风情 → 苏格兰高地自驾 → 天空岛秘境 → 爱尔兰莫赫悬崖 → 巨人堤道 → 都柏林黑啤之旅
+    </div>
+
+    <div id="map"></div>
+    <div class="map-legend">
+        <strong>地图图例：</strong><br>
+        <span style="color:#805ad5;font-weight:bold">- - - 火车/航班路线</span> | 
+        <span style="color:#38a169;font-weight:bold">—— 苏格兰自驾</span> | 
+        <span style="color:#dd6b20;font-weight:bold">—— 爱尔兰自驾</span> |
+        <span style="font-size:16px">🏨</span> 住宿地<br>
+        <span style="display:inline-block;background:#e53e3e;color:white;border-radius:50%;width:20px;height:20px;text-align:center;line-height:20px;font-size:12px;font-weight:bold">E</span> 英格兰 | 
+        <span style="display:inline-block;background:#3182ce;color:white;border-radius:50%;width:20px;height:20px;text-align:center;line-height:20px;font-size:12px;font-weight:bold">S</span> 苏格兰 | 
+        <span style="display:inline-block;background:#38a169;color:white;border-radius:50%;width:20px;height:20px;text-align:center;line-height:20px;font-size:12px;font-weight:bold">I</span> 爱尔兰<br>
+        <small>💡 右上角可切换 高德地图/卫星/卫星标注/OSM图层 | 点击标记查看详情</small>
+    </div>
+
+    <h2>完整行程表</h2>
+
+    <div class="phase-header">🏴󠁧󠁢󠁥󠁮󠁧󠁿 第一阶段：英格兰人文（Days 1-4）</div>
+    <table class="itinerary-table">
+        <tr>
+            <th>天数</th>
+            <th>日期</th>
+            <th>城市/地点</th>
+            <th>主要活动</th>
+            <th>交通</th>
+            <th>主要景点</th>
+            <th>备注</th>
+            <th>住宿</th>
+        </tr>
+
+        <!-- Day 1 -->
+        <tr>
+            <td>D1</td>
+            <td>Day 1</td>
+            <td>伦敦</td>
+            <td>抵达伦敦，City Walk</td>
+            <td><span class="flight-segment">✈ 抵达希思罗机场<br>希思罗快线至市区</span></td>
+            <td>
+                ✈️ 希思罗机场 → 🏨 Hotel<br>
+                → <a href="#大英博物馆攻略" class="attraction-link">大英博物馆</a>（外观）<br>
+                → 布卢姆茨伯里<br>
+                → <a href="#特拉法加广场攻略" class="attraction-link">特拉法加广场</a><br>
+                → <a href="#泰晤士河夜景攻略" class="attraction-link">泰晤士河夜景</a>（伦敦眼+大本钟同框）
+            </td>
+            <td>07:00抵达希思罗<br>上午入住后休整，下午City Walk<br>晚上泰晤士河畔看夜景</td>
+            <td>🏨 尤斯顿/国王十字附近<br><small>King's Cross 区域</small></td>
+        </tr>
+
+        <!-- Day 2 -->
+        <tr>
+            <td>D2</td>
+            <td>Day 2</td>
+            <td>伦敦</td>
+            <td>大英博物馆深度游</td>
+            <td><span class="city-segment">🚇 地铁/步行</span></td>
+            <td>
+                🏨 Hotel → <a href="#大英博物馆攻略" class="attraction-link">大英博物馆</a>（全天深度游）<br>
+                直奔：罗塞塔石碑、埃及木乃伊、帕特农神庙雕塑<br>
+                → <a href="#国王十字攻略" class="attraction-link">国王十字车站 9¾站台</a><span class="hp-badge">🧙 哈利波特</span>
+            </td>
+            <td>建议请讲解或租导览器<br>傍晚去国王十字打卡9¾站台<br>为次日火车出行预热</td>
+            <td>🏨 尤斯顿/国王十字附近<br><small>King's Cross 区域</small></td>
+        </tr>
+
+        <!-- Day 3 -->
+        <tr>
+            <td>D3</td>
+            <td>Day 3</td>
+            <td>伦敦→剑桥→约克</td>
+            <td>剑桥半日游，火车北上约克</td>
+            <td>
+                <span class="train-segment">🚆 伦敦→剑桥（约1小时）</span><br>
+                <span class="train-segment">🚆 剑桥→约克（约2小时）</span>
+            </td>
+            <td>
+                <a href="#剑桥攻略" class="attraction-link">国王学院</a><br>
+                <a href="#剑桥攻略" class="attraction-link">康河散步</a><br>
+                <a href="#约克攻略" class="attraction-link">肉铺街 The Shambles</a><span class="hp-badge">🧙 哈利波特</span>
+            </td>
+            <td>上午火车至剑桥，逛国王学院和康河<br>下午火车北上约克<br>肉铺街找传统餐厅晚餐</td>
+            <td>🏨 约克市中心<br><small>York City Centre</small></td>
+        </tr>
+
+        <!-- Day 4 -->
+        <tr class="scotland-highlight">
+            <td>D4</td>
+            <td>Day 4</td>
+            <td>约克→爱丁堡</td>
+            <td>火车至爱丁堡，城堡&皇家英里</td>
+            <td><span class="train-segment">🚆 约克→爱丁堡（约2.5小时）</span></td>
+            <td>
+                <a href="#爱丁堡城堡攻略" class="attraction-link">爱丁堡城堡</a><br>
+                <a href="#皇家英里攻略" class="attraction-link">皇家英里大道</a>
+            </td>
+            <td>上午乘火车直达爱丁堡<br>城堡需提前预约<br>晚上皇家英里大道感受苏格兰风笛</td>
+            <td>🏨 爱丁堡老城区<br><small>Edinburgh Old Town</small></td>
+        </tr>
+    </table>
+
+    <div class="phase-header">🏴󠁧󠁢󠁳󠁣󠁴󠁿 第二阶段：苏格兰高地自驾（Days 5-7）</div>
+    <table class="itinerary-table">
+        <tr>
+            <th>天数</th>
+            <th>日期</th>
+            <th>城市/地点</th>
+            <th>主要活动</th>
+            <th>交通</th>
+            <th>主要景点</th>
+            <th>备注</th>
+            <th>住宿</th>
+        </tr>
+
+        <!-- Day 5 -->
+        <tr class="scotland-highlight">
+            <td>D5</td>
+            <td>Day 5</td>
+            <td>爱丁堡→因弗内斯</td>
+            <td>取车自驾北上高地</td>
+            <td><span class="drive-segment">🚗 爱丁堡租车（建议SUV）<br>沿A9公路北上（约3.5h）</span></td>
+            <td>
+                沿途苏格兰高地风光<br>
+                <a href="#尼斯湖攻略" class="attraction-link">尼斯湖 Loch Ness</a><span class="scenic-badge">🏔️ 高地</span>
+            </td>
+            <td>上午租车出发，穿越苏格兰高地<br>途经尼斯湖<br>抵达"高地首府"因弗内斯休整</td>
+            <td>🏨 因弗内斯市中心<br><small>Inverness</small></td>
+        </tr>
+
+        <!-- Day 6 -->
+        <tr class="scotland-highlight">
+            <td>D6</td>
+            <td>Day 6</td>
+            <td>因弗内斯→威廉堡</td>
+            <td>高地最美自驾日</td>
+            <td><span class="drive-segment">🚗 沿A82公路南下（约2h）</span></td>
+            <td>
+                <a href="#格伦芬南攻略" class="attraction-link">格伦芬南高架桥</a><span class="hp-badge">🧙 哈利波特</span><br>
+                <a href="#格伦科攻略" class="attraction-link">格伦科峡谷 Glen Coe</a><span class="scenic-badge">🏔️ 高地</span><br>
+                <a href="#本尼维斯攻略" class="attraction-link">本尼维斯山</a>
+            </td>
+            <td>A82公路被誉为苏格兰最美公路<br>格伦芬南高架桥是《哈利波特》取景地<br>可在威廉堡坐缆车看本尼维斯山</td>
+            <td>🏨 威廉堡<br><small>Fort William</small></td>
+        </tr>
+
+        <!-- Day 7 -->
+        <tr class="scotland-highlight">
+            <td>D7</td>
+            <td>Day 7</td>
+            <td>威廉堡→天空岛→格拉斯哥→都柏林</td>
+            <td>天空岛打卡，还车飞都柏林</td>
+            <td>
+                <span class="drive-segment">🚗 自驾上天空岛（约2.5h）<br>返回格拉斯哥还车（约4h）</span><br>
+                <span class="flight-segment">✈ 格拉斯哥→都柏林（约1h）</span>
+            </td>
+            <td>
+                <a href="#天空岛攻略" class="attraction-link">天空岛 Isle of Skye</a><span class="scenic-badge">🏔️ 高地</span><br>
+                <a href="#老人峰攻略" class="attraction-link">老人峰 Old Man of Storr</a>
+            </td>
+            <td>上午自驾上天空岛打卡老人峰<br>下午返程在格拉斯哥还车<br>晚上飞往都柏林（约1小时）</td>
+            <td>🏨 都柏林市中心<br><small>Dublin City Centre</small></td>
+        </tr>
+    </table>
+
+    <div class="phase-header">🇮🇪 第三阶段：爱尔兰环岛（Days 8-11）</div>
+    <table class="itinerary-table">
+        <tr>
+            <th>天数</th>
+            <th>日期</th>
+            <th>城市/地点</th>
+            <th>主要活动</th>
+            <th>交通</th>
+            <th>主要景点</th>
+            <th>备注</th>
+            <th>住宿</th>
+        </tr>
+
+        <!-- Day 8 -->
+        <tr class="ireland-highlight">
+            <td>D8</td>
+            <td>Day 8</td>
+            <td>都柏林→莫赫悬崖</td>
+            <td>租车西行，壮丽悬崖</td>
+            <td><span class="drive-segment">🚗 都柏林租车<br>自驾至莫赫悬崖（约3h）</span></td>
+            <td>
+                <a href="#莫赫悬崖攻略" class="attraction-link">莫赫悬崖 Cliffs of Moher</a><span class="scenic-badge">🌊 绝景</span>
+            </td>
+            <td>全天自驾行程<br>沿悬崖栈道徒步<br>感受大西洋的磅礴气势</td>
+            <td>🏨 戈尔韦/利默里克<br><small>Galway / Limerick</small></td>
+        </tr>
+
+        <!-- Day 9 -->
+        <tr class="ireland-highlight">
+            <td>D9</td>
+            <td>Day 9</td>
+            <td>戈尔韦→巨人堤道→贝尔法斯特</td>
+            <td>跨境北上，世界奇观</td>
+            <td><span class="drive-segment">🚗 戈尔韦→巨人堤道（约5h）<br>→贝尔法斯特（约1.5h）</span></td>
+            <td>
+                <a href="#巨人堤道攻略" class="attraction-link">巨人堤道 Giant's Causeway</a><span class="scenic-badge">🌊 绝景</span><br>
+                <a href="#泰坦尼克攻略" class="attraction-link">泰坦尼克号博物馆</a>
+            </td>
+            <td>⚠️ 今日车程较长（约6.5h总车程）<br>从爱尔兰进入北爱尔兰<br>巨人堤道是世界自然遗产</td>
+            <td>🏨 贝尔法斯特<br><small>Belfast</small></td>
+        </tr>
+
+        <!-- Day 10 -->
+        <tr class="ireland-highlight">
+            <td>D10</td>
+            <td>Day 10</td>
+            <td>贝尔法斯特→都柏林</td>
+            <td>贝尔法斯特半日+返回都柏林</td>
+            <td><span class="drive-segment">🚗 贝尔法斯特→都柏林（约2h）<br>还车</span></td>
+            <td>
+                <a href="#贝尔法斯特攻略" class="attraction-link">和平墙 Peace Wall</a><br>
+                贝尔法斯特市政厅<br>
+                <a href="#圣殿酒吧攻略" class="attraction-link">圣殿酒吧区 Temple Bar</a>
+            </td>
+            <td>上午逛贝尔法斯特市区<br>下午自驾返回都柏林还车<br>晚上Temple Bar体验爱尔兰传统音乐</td>
+            <td>🏨 都柏林市中心<br><small>Dublin City Centre</small></td>
+        </tr>
+
+        <!-- Day 11 -->
+        <tr class="ireland-highlight">
+            <td>D11</td>
+            <td>Day 11</td>
+            <td>都柏林</td>
+            <td>都柏林深度游+购物</td>
+            <td><span class="city-segment">🚶 步行/公交</span></td>
+            <td>
+                <a href="#圣三一学院攻略" class="attraction-link">圣三一学院</a>（《凯尔经》）<br>
+                <a href="#健力士攻略" class="attraction-link">健力士黑啤展览馆</a><br>
+                🛍️ 购买伴手礼
+            </td>
+            <td>必去圣三一学院看《凯尔经》<br>健力士黑啤展览馆体验<br>下午买羊毛围巾、红茶、威士忌</td>
+            <td>🏨 都柏林市中心<br><small>Dublin City Centre</small></td>
+        </tr>
+    </table>
+
+    <div class="phase-header">✈️ 第四阶段：归程（Day 12）</div>
+    <table class="itinerary-table">
+        <tr>
+            <th>天数</th>
+            <th>日期</th>
+            <th>城市/地点</th>
+            <th>主要活动</th>
+            <th>交通</th>
+            <th>主要景点</th>
+            <th>备注</th>
+            <th>住宿</th>
+        </tr>
+
+        <!-- Day 12 -->
+        <tr>
+            <td>D12</td>
+            <td>Day 12</td>
+            <td>都柏林→回程</td>
+            <td>前往机场，国际航班回国</td>
+            <td><span class="flight-segment">✈ 都柏林机场 DUB<br>中午12:00航班</span></td>
+            <td>
+                🏨 Hotel → ✈️ Dublin Airport
+            </td>
+            <td>预留充足时间前往机场<br>建议09:00前出发<br>检查护照、登机牌及退税单据</td>
+            <td>N/A</td>
+        </tr>
+    </table>
+
+    <h2>交通信息</h2>
+    <h3>🚆 火车行程</h3>
+    <table class="flight-table">
+        <tr>
+            <th>日期</th>
+            <th>区间</th>
+            <th>车程</th>
+            <th>备注</th>
+        </tr>
+        <tr>
+            <td>Day 3 上午</td>
+            <td>伦敦 King's Cross → 剑桥 Cambridge</td>
+            <td>约1小时</td>
+            <td>建议提前在 Trainline App 购票</td>
+        </tr>
+        <tr>
+            <td>Day 3 下午</td>
+            <td>剑桥 Cambridge → 约克 York</td>
+            <td>约2小时</td>
+            <td>越早买越便宜</td>
+        </tr>
+        <tr>
+            <td>Day 4 上午</td>
+            <td>约克 York → 爱丁堡 Edinburgh Waverley</td>
+            <td>约2.5小时</td>
+            <td>LNER列车，沿途风景优美</td>
+        </tr>
+    </table>
+
+    <h3>✈️ 航班信息</h3>
+    <table class="flight-table">
+        <tr>
+            <th>日期</th>
+            <th>航线</th>
+            <th>时间</th>
+            <th>备注</th>
+        </tr>
+        <tr>
+            <td>Day 1</td>
+            <td>出发地 → 伦敦希思罗 LHR</td>
+            <td>07:00 抵达</td>
+            <td>乘希思罗快线至市区（15min）</td>
+        </tr>
+        <tr style="background-color:#ebf8ff">
+            <td>Day 7 晚</td>
+            <td>格拉斯哥 GLA → 都柏林 DUB</td>
+            <td>约1小时飞行</td>
+            <td>还车后飞往都柏林，需提前预订</td>
+        </tr>
+        <tr>
+            <td>Day 12</td>
+            <td>都柏林 DUB → 回程</td>
+            <td>中午12:00</td>
+            <td>建议09:00前出发去机场</td>
+        </tr>
+    </table>
+
+    <h2>自驾租车信息</h2>
+    <div class="note-box">
+        <strong>🚗 苏格兰段租车（Day 5-7）</strong><br>
+        • <strong>取车：</strong>爱丁堡（Day 5 上午）<br>
+        • <strong>还车：</strong>格拉斯哥机场（Day 7 下午）<br>
+        • <strong>租期：</strong>约3天<br>
+        • <strong>建议车型：</strong>SUV（高地山路适用）<br><br>
+        <strong>🚗 爱尔兰段租车（Day 8-10）</strong><br>
+        • <strong>取车：</strong>都柏林（Day 8 上午）<br>
+        • <strong>还车：</strong>都柏林（Day 10 下午）<br>
+        • <strong>租期：</strong>约3天<br>
+        • <strong>建议车型：</strong>小型车（乡村道路狭窄）<br><br>
+        <strong>⚠️ 自驾注意事项：</strong><br>
+        • <strong>左侧行驶：</strong>英国和爱尔兰均为左侧通行，车辆右舵<br>
+        • <strong>苏格兰高地：</strong>山路多为单线车道（Single Track Road），需特别注意会车安全，遇到 Passing Place 需主动让车<br>
+        • <strong>爱尔兰乡村：</strong>道路狭窄，限速标志注意英里/公里区别（北爱用英里，爱尔兰用公里）<br>
+        • <strong>导航：</strong>提前下载 Google Maps 离线地图，部分高地路段信号差
+    </div>
+
+    <h2>住宿信息（建议）</h2>
+    <table class="flight-table">
+        <tr>
+            <th>日期</th>
+            <th>城市</th>
+            <th>建议区域</th>
+            <th>入住天数</th>
+        </tr>
+        <tr>
+            <td>Day 1-2</td>
+            <td>🇬🇧 伦敦</td>
+            <td>🏨 尤斯顿/国王十字车站附近（King's Cross / Euston）</td>
+            <td>2晚</td>
+        </tr>
+        <tr>
+            <td>Day 3</td>
+            <td>🇬🇧 约克</td>
+            <td>🏨 约克市中心（靠近肉铺街 The Shambles）</td>
+            <td>1晚</td>
+        </tr>
+        <tr style="background-color:#ebf8ff">
+            <td>Day 4</td>
+            <td>🏴󠁧󠁢󠁳󠁣󠁴󠁿 爱丁堡</td>
+            <td>🏨 老城区（Royal Mile 附近）</td>
+            <td>1晚</td>
+        </tr>
+        <tr style="background-color:#ebf8ff">
+            <td>Day 5</td>
+            <td>🏴󠁧󠁢󠁳󠁣󠁴󠁿 因弗内斯</td>
+            <td>🏨 因弗内斯市中心</td>
+            <td>1晚</td>
+        </tr>
+        <tr style="background-color:#ebf8ff">
+            <td>Day 6</td>
+            <td>🏴󠁧󠁢󠁳󠁣󠁴󠁿 威廉堡</td>
+            <td>🏨 威廉堡镇中心（Fort William）</td>
+            <td>1晚</td>
+        </tr>
+        <tr style="background-color:#f0fff4">
+            <td>Day 7</td>
+            <td>🇮🇪 都柏林</td>
+            <td>🏨 都柏林市中心（Temple Bar 区域）</td>
+            <td>1晚</td>
+        </tr>
+        <tr style="background-color:#f0fff4">
+            <td>Day 8</td>
+            <td>🇮🇪 戈尔韦/利默里克</td>
+            <td>🏨 戈尔韦市中心（Galway）或利默里克</td>
+            <td>1晚</td>
+        </tr>
+        <tr style="background-color:#f0fff4">
+            <td>Day 9</td>
+            <td>🇬🇧 贝尔法斯特</td>
+            <td>🏨 贝尔法斯特市中心（Belfast City Centre）</td>
+            <td>1晚</td>
+        </tr>
+        <tr style="background-color:#f0fff4">
+            <td>Day 10-11</td>
+            <td>🇮🇪 都柏林</td>
+            <td>🏨 都柏林市中心（Temple Bar 区域）</td>
+            <td>2晚</td>
+        </tr>
+    </table>
+    <div class="note-box">
+        <strong>备注：</strong>共11晚住宿。建议提前在Booking.com或Airbnb预订，旺季票源紧张。
+    </div>
+
+    <h2>景点导航目的地</h2>
+    <ul>
+        <li><span class="nav-point">大英博物馆</span>：导航至 "British Museum, Great Russell St, London"</li>
+        <li><span class="nav-point">特拉法加广场</span>：导航至 "Trafalgar Square, London"</li>
+        <li><span class="nav-point">国王十字9¾站台</span>：导航至 "Platform 9¾, King's Cross Station, London"</li>
+        <li><span class="nav-point">国王学院</span>：导航至 "King's College, Cambridge"</li>
+        <li><span class="nav-point">肉铺街</span>：导航至 "The Shambles, York"</li>
+        <li><span class="nav-point">爱丁堡城堡</span>：导航至 "Edinburgh Castle, Castlehill, Edinburgh"</li>
+        <li><span class="nav-point">格伦芬南高架桥</span>：导航至 "Glenfinnan Viaduct Viewpoint"</li>
+        <li><span class="nav-point">老人峰</span>：导航至 "Old Man of Storr, Isle of Skye"</li>
+        <li><span class="nav-point">莫赫悬崖</span>：导航至 "Cliffs of Moher Visitor Experience"</li>
+        <li><span class="nav-point">巨人堤道</span>：导航至 "Giant's Causeway, Bushmills"</li>
+        <li><span class="nav-point">泰坦尼克号博物馆</span>：导航至 "Titanic Belfast"</li>
+        <li><span class="nav-point">圣三一学院</span>：导航至 "Trinity College Dublin"</li>
+        <li><span class="nav-point">健力士黑啤展览馆</span>：导航至 "Guinness Storehouse, Dublin"</li>
+    </ul>
+
+    <h2>景点游玩攻略</h2>
+    <div id="attraction-guides">
+
+        <div id="大英博物馆攻略" class="guide-section">
+            <h3>🏛️ 大英博物馆 (British Museum)</h3>
+            <p><strong>位置：</strong>伦敦布卢姆茨伯里区，Great Russell Street</p>
+            <p><strong>游玩时间：</strong>至少半天（走马观花也要3小时）</p>
+            <p><strong>特色：</strong>世界四大博物馆之一，馆藏超过800万件，覆盖200万年人类历史</p>
+            <p><strong>必看：</strong>罗塞塔石碑（Room 4）、埃及木乃伊（Room 62-63）、帕特农神庙雕塑（Room 18）、中国瓷器馆、路易斯棋子</p>
+            <p><strong>门票：</strong>免费（特展另收费）</p>
+            <p><strong>开放时间：</strong>每天 10:00-17:00（周五延至20:30）</p>
+            <p><strong>💡 Tips：</strong>建议租中文语音导览器（约7英镑），或下载官方App。博物馆巨大，建议提前规划想看的区域！</p>
+            <a href="#" class="back-to-top">返回顶部</a>
+        </div>
+
+        <div id="特拉法加广场攻略" class="guide-section">
+            <h3>🏛️ 特拉法加广场 (Trafalgar Square)</h3>
+            <p><strong>位置：</strong>伦敦市中心，查令十字路口</p>
+            <p><strong>特色：</strong>伦敦最著名的广场，纪念1805年特拉法加海战。中央矗立纳尔逊纪念柱（52米高），四角有铜狮雕塑</p>
+            <p><strong>周边：</strong>国家美术馆（免费）、圣马丁教堂、白厅大街（通往大本钟方向）</p>
+            <p><strong>门票：</strong>免费开放</p>
+            <p><strong>游玩时间：</strong>30分钟-1小时</p>
+            <a href="#" class="back-to-top">返回顶部</a>
+        </div>
+
+        <div id="泰晤士河夜景攻略" class="guide-section">
+            <h3>🌃 泰晤士河夜景</h3>
+            <p><strong>位置：</strong>威斯敏斯特桥至滑铁卢桥沿岸</p>
+            <p><strong>特色：</strong>伦敦眼、大本钟、威斯敏斯特宫同框的经典夜景</p>
+            <p><strong>最佳拍摄点：</strong>威斯敏斯特桥上（大本钟+伦敦眼同框）、南岸河堤（看对岸议会大厦）</p>
+            <p><strong>门票：</strong>免费漫步</p>
+            <p><strong>💡 Tips：</strong>日落后1小时是最佳拍摄时间，天空还有余晖而灯光已亮起！</p>
+            <a href="#" class="back-to-top">返回顶部</a>
+        </div>
+
+        <div id="国王十字攻略" class="guide-section">
+            <h3>🧙 国王十字车站 9¾站台 (Platform 9¾)</h3>
+            <p><strong>位置：</strong>伦敦国王十字火车站内</p>
+            <p><strong>特色：</strong>《哈利波特》系列中通往霍格沃茨特快列车的魔法站台。车站专门设置了推车穿墙的拍照点和哈利波特商店</p>
+            <p><strong>门票：</strong>免费拍照，商店可购买周边</p>
+            <p><strong>游玩时间：</strong>20-40分钟（含排队拍照+逛商店）</p>
+            <p><strong>💡 Tips：</strong>拍照可能需要排队15-30分钟，工作人员会帮你抛围巾营造魔法效果！</p>
+            <a href="#" class="back-to-top">返回顶部</a>
+        </div>
+
+        <div id="剑桥攻略" class="guide-section">
+            <h3>🎓 剑桥 (Cambridge)</h3>
+            <p><strong>位置：</strong>伦敦以北约100公里，火车1小时</p>
+            <p><strong>必看：</strong>国王学院（King's College）及其哥特式礼拜堂（世界最大扇形穹顶）、康河（River Cam）撑篙泛舟</p>
+            <p><strong>游玩时间：</strong>半天足够</p>
+            <p><strong>撑篙泛舟：</strong>约20英镑/人，沿途经过数学桥、叹息桥，有船夫讲解</p>
+            <p><strong>国王学院门票：</strong>约10英镑</p>
+            <p><strong>💡 Tips：</strong>如果时间有限，重点看国王学院礼拜堂和康河即可。徐志摩的"再别康桥"纪念碑在国王学院后花园河畔！</p>
+            <a href="#" class="back-to-top">返回顶部</a>
+        </div>
+
+        <div id="约克攻略" class="guide-section">
+            <h3>🏰 约克 (York)</h3>
+            <p><strong>位置：</strong>英格兰北部，历史古城</p>
+            <p><strong>必看：</strong>肉铺街（The Shambles）— 被认为是JK罗琳笔下"对角巷"的灵感来源，是欧洲保存最完整的中世纪街道之一</p>
+            <p><strong>约克大教堂：</strong>北欧最大的哥特式教堂，彩色玻璃窗极其精美</p>
+            <p><strong>城墙漫步：</strong>约克有英格兰保存最完整的中世纪城墙，可沿墙步行一圈（约3km）</p>
+            <p><strong>美食：</strong>在肉铺街找一家传统英式餐厅，尝试Yorkshire Pudding和Fish & Chips</p>
+            <p><strong>💡 Tips：</strong>肉铺街适合傍晚漫步，老式建筑在暖色灯光下非常有哈利波特的魔法氛围！</p>
+            <a href="#" class="back-to-top">返回顶部</a>
+        </div>
+
+        <div id="爱丁堡城堡攻略" class="guide-section">
+            <h3>🏰 爱丁堡城堡 (Edinburgh Castle)</h3>
+            <p><strong>位置：</strong>爱丁堡城堡岩山顶，俯瞰全城</p>
+            <p><strong>特色：</strong>苏格兰最具标志性的建筑，有超过1000年历史。城堡内展示苏格兰王冠珠宝、命运之石和著名的一点钟大炮</p>
+            <p><strong>门票：</strong>约19.5英镑，必须提前网上预约</p>
+            <p><strong>游玩时间：</strong>2-3小时</p>
+            <p><strong>开放时间：</strong>09:30-17:00（季节调整）</p>
+            <p><strong>💡 Tips：</strong>城堡内风大且冷，注意保暖。每天13:00会放"一点钟大炮"（One O'Clock Gun），很有仪式感！</p>
+            <a href="#" class="back-to-top">返回顶部</a>
+        </div>
+
+        <div id="皇家英里攻略" class="guide-section">
+            <h3>🎭 皇家英里大道 (Royal Mile)</h3>
+            <p><strong>位置：</strong>爱丁堡城堡到荷里路德宫之间的一英里长大道</p>
+            <p><strong>特色：</strong>爱丁堡最古老、最繁华的街道。两侧是历史建筑、纪念品店、苏格兰威士忌酒吧和街头艺人</p>
+            <p><strong>必看：</strong>圣吉尔斯大教堂（免费）、苏格兰威士忌体验馆</p>
+            <p><strong>门票：</strong>大道免费漫步</p>
+            <p><strong>💡 Tips：</strong>晚上的皇家英里特别有氛围，可能遇到苏格兰风笛手表演。注意探索大道两侧的"Close"（小巷子），里面藏着很多故事！</p>
+            <a href="#" class="back-to-top">返回顶部</a>
+        </div>
+
+        <div id="尼斯湖攻略" class="guide-section">
+            <h3>🦕 尼斯湖 (Loch Ness)</h3>
+            <p><strong>位置：</strong>苏格兰高地，因弗内斯西南约30公里</p>
+            <p><strong>特色：</strong>世界上最著名的淡水湖之一，以"尼斯湖水怪"传说闻名。湖面狭长（37公里），最深处达230米，湖水幽暗深邃</p>
+            <p><strong>必看：</strong>厄克特城堡遗址（Urquhart Castle）— 湖畔最佳观景点，门票约12英镑</p>
+            <p><strong>游玩时间：</strong>途经停留1-2小时</p>
+            <p><strong>💡 Tips：</strong>在A82公路沿湖行驶时，多处有停车观景台。厄克特城堡是拍尼斯湖全景的最佳位置！</p>
+            <a href="#" class="back-to-top">返回顶部</a>
+        </div>
+
+        <div id="格伦芬南攻略" class="guide-section">
+            <h3>🚂 格伦芬南高架桥 (Glenfinnan Viaduct)</h3>
+            <p><strong>位置：</strong>威廉堡以西约25公里</p>
+            <p><strong>特色：</strong>《哈利波特》电影中霍格沃茨特快列车驶过的经典场景！建于1901年的21孔混凝土高架桥，全长380米，横跨壮丽的山谷</p>
+            <p><strong>观景点：</strong>从停车场步行约15分钟上山到观景台</p>
+            <p><strong>火车时刻：</strong>Jacobite蒸汽火车（即"霍格沃茨特快"）季节性运行（通常4-10月），如果赶上可以看到蒸汽火车过桥的震撼场景</p>
+            <p><strong>门票：</strong>免费（停车约3.5英镑）</p>
+            <p><strong>💡 Tips：</strong>即使没有蒸汽火车，普通列车也会定期经过。提前查好时刻表在桥上等火车过桥拍照！</p>
+            <a href="#" class="back-to-top">返回顶部</a>
+        </div>
+
+        <div id="格伦科攻略" class="guide-section">
+            <h3>🏔️ 格伦科峡谷 (Glen Coe)</h3>
+            <p><strong>位置：</strong>A82公路沿线，威廉堡以南约30公里</p>
+            <p><strong>特色：</strong>苏格兰最壮美的峡谷，被称为"哭泣的峡谷"。1692年格伦科大屠杀的发生地，历史厚重。也是《哈利波特》《007天幕杀机》《勇敢的心》取景地</p>
+            <p><strong>必做：</strong>在峡谷中短途徒步（多条标记路线），感受高地的荒凉壮美</p>
+            <p><strong>游玩时间：</strong>1-3小时（取决于徒步深度）</p>
+            <p><strong>💡 Tips：</strong>峡谷天气变化极快，即使夏天也要带防风防雨外套！A82沿途有多个停车点可以停车拍照。</p>
+            <a href="#" class="back-to-top">返回顶部</a>
+        </div>
+
+        <div id="本尼维斯攻略" class="guide-section">
+            <h3>⛰️ 本尼维斯山 (Ben Nevis)</h3>
+            <p><strong>位置：</strong>威廉堡附近，英国最高峰（1345米）</p>
+            <p><strong>特色：</strong>不列颠群岛的最高峰。可乘坐尼维斯山缆车（Nevis Range）到达山腰观景台，俯瞰峡谷美景</p>
+            <p><strong>缆车：</strong>约17英镑往返</p>
+            <p><strong>💡 Tips：</strong>除非是经验丰富的登山者，不建议在行程中安排登顶（来回需7-9小时）。缆车观景是轻松的选择！</p>
+            <a href="#" class="back-to-top">返回顶部</a>
+        </div>
+
+        <div id="天空岛攻略" class="guide-section">
+            <h3>🏝️ 天空岛 (Isle of Skye)</h3>
+            <p><strong>位置：</strong>苏格兰西北海岸，通过天空桥（Skye Bridge）与大陆相连</p>
+            <p><strong>特色：</strong>苏格兰最美的岛屿，被《国家地理》评为世界最美岛屿之一。奇特的地貌、悬崖、瀑布和海景构成绝美画面</p>
+            <p><strong>必看：</strong>老人峰（Old Man of Storr）、仙女池（Fairy Pools）、奎林山脉（The Quiraing）、邓韦根城堡（Dunvegan Castle）</p>
+            <p><strong>游玩时间：</strong>至少半天（完整环岛需2天）</p>
+            <p><strong>💡 Tips：</strong>如果时间有限，优先去老人峰！天空岛天气非常多变，一天内可能经历四季，防风雨装备必备。</p>
+            <a href="#" class="back-to-top">返回顶部</a>
+        </div>
+
+        <div id="老人峰攻略" class="guide-section">
+            <h3>🗿 老人峰 (Old Man of Storr)</h3>
+            <p><strong>位置：</strong>天空岛东海岸，波特里（Portree）以北约10公里</p>
+            <p><strong>特色：</strong>天空岛最具标志性的景观！一根49米高的玄武岩石柱矗立在悬崖边，背后是壮阔的海景和群山</p>
+            <p><strong>徒步：</strong>从停车场到老人峰约需45-60分钟（单程），路径明确但较陡</p>
+            <p><strong>门票：</strong>免费（停车约5英镑）</p>
+            <p><strong>💡 Tips：</strong>早晨云雾缭绕时最为梦幻。路面湿滑，穿防水登山鞋。即使不登顶，山脚下看也很壮观！</p>
+            <a href="#" class="back-to-top">返回顶部</a>
+        </div>
+
+        <div id="莫赫悬崖攻略" class="guide-section">
+            <h3>🌊 莫赫悬崖 (Cliffs of Moher)</h3>
+            <p><strong>位置：</strong>爱尔兰西海岸，克莱尔郡</p>
+            <p><strong>特色：</strong>爱尔兰最壮观的自然景观！悬崖最高处达214米，绵延8公里。面朝大西洋，气势磅礴</p>
+            <p><strong>必做：</strong>沿悬崖栈道徒步（南北各有步道），观赏海蚀柱和海鸟栖息地</p>
+            <p><strong>门票：</strong>约8欧元（含游客中心和停车）</p>
+            <p><strong>游玩时间：</strong>2-3小时</p>
+            <p><strong>💡 Tips：</strong>悬崖边风极大，注意安全！日落时分是最佳观赏时间。O'Brien塔是最佳拍摄点。</p>
+            <a href="#" class="back-to-top">返回顶部</a>
+        </div>
+
+        <div id="巨人堤道攻略" class="guide-section">
+            <h3>🪨 巨人堤道 (Giant's Causeway)</h3>
+            <p><strong>位置：</strong>北爱尔兰安特里姆郡海岸</p>
+            <p><strong>特色：</strong>世界自然遗产！约4万根六角形玄武岩石柱组成的奇特地质景观，由6000万年前火山活动形成。传说是巨人芬恩·麦库尔建造的通往苏格兰的堤道</p>
+            <p><strong>门票：</strong>约13.5英镑（含游客中心和语音导览）</p>
+            <p><strong>游玩时间：</strong>2-3小时</p>
+            <p><strong>💡 Tips：</strong>石柱被海浪拍打时非常壮观。注意岩石湿滑，穿防滑鞋。附近的卡里克空中吊桥（Carrick-a-Rede Rope Bridge）也值得一去！</p>
+            <a href="#" class="back-to-top">返回顶部</a>
+        </div>
+
+        <div id="泰坦尼克攻略" class="guide-section">
+            <h3>🚢 泰坦尼克号博物馆 (Titanic Belfast)</h3>
+            <p><strong>位置：</strong>贝尔法斯特泰坦尼克区，Queen's Road</p>
+            <p><strong>特色：</strong>世界上最大的泰坦尼克号主题展览馆，建在当年泰坦尼克号建造的船坞原址上。9个互动展厅讲述从设计、建造到沉没的完整故事</p>
+            <p><strong>门票：</strong>约24.5英镑</p>
+            <p><strong>游玩时间：</strong>2-3小时</p>
+            <p><strong>💡 Tips：</strong>建议提前网上购票。旁边的SS Nomadic号（泰坦尼克号的姊妹船）也值得参观，门票含在内。</p>
+            <a href="#" class="back-to-top">返回顶部</a>
+        </div>
+
+        <div id="贝尔法斯特攻略" class="guide-section">
+            <h3>🏙️ 贝尔法斯特 (Belfast)</h3>
+            <p><strong>和平墙 Peace Wall：</strong>见证北爱尔兰新教徒与天主教徒之间冲突历史的隔离墙。可以乘坐黑色出租车（Black Taxi Tour）听司机讲解历史故事，在墙上签名留言</p>
+            <p><strong>市政厅 City Hall：</strong>爱德华巴洛克式建筑，免费参观（有导览团），了解贝尔法斯特历史</p>
+            <p><strong>💡 Tips：</strong>Black Taxi Tour约35-40英镑/人，约1.5小时，是了解北爱历史最好的方式。</p>
+            <a href="#" class="back-to-top">返回顶部</a>
+        </div>
+
+        <div id="圣殿酒吧攻略" class="guide-section">
+            <h3>🍺 圣殿酒吧区 (Temple Bar)</h3>
+            <p><strong>位置：</strong>都柏林利菲河南岸，市中心</p>
+            <p><strong>特色：</strong>都柏林最著名的娱乐区，鹅卵石街道两旁满是色彩鲜艳的酒吧、餐厅和画廊。晚上几乎每家酒吧都有现场传统爱尔兰音乐表演</p>
+            <p><strong>必做：</strong>找一家有 Live Music 的酒吧，点一杯 Guinness 黑啤，听爱尔兰民间音乐</p>
+            <p><strong>门票：</strong>免费漫步，消费自理</p>
+            <p><strong>💡 Tips：</strong>周末晚上最热闹但也最拥挤。Temple Bar酒吧的Guinness比其他地方贵一些，但氛围无价！</p>
+            <a href="#" class="back-to-top">返回顶部</a>
+        </div>
+
+        <div id="圣三一学院攻略" class="guide-section">
+            <h3>📚 圣三一学院 (Trinity College Dublin)</h3>
+            <p><strong>位置：</strong>都柏林市中心，College Green</p>
+            <p><strong>特色：</strong>爱尔兰最古老的大学（1592年创立），校园建筑古典优雅。最大看点是老图书馆（Old Library）中的《凯尔经》（Book of Kells）—一部约1200年历史的福音手抄本，被誉为爱尔兰的国宝</p>
+            <p><strong>长厅 Long Room：</strong>老图书馆的长廊，65米长，藏有20万册古籍，《星球大战》绝地档案馆的灵感来源</p>
+            <p><strong>门票：</strong>约18欧元（含《凯尔经》展览和长厅）</p>
+            <p><strong>游玩时间：</strong>1-2小时</p>
+            <p><strong>💡 Tips：</strong>必须提前网上预约！旺季很快售罄。长厅非常出片，爱书人的天堂！</p>
+            <a href="#" class="back-to-top">返回顶部</a>
+        </div>
+
+        <div id="健力士攻略" class="guide-section">
+            <h3>🍺 健力士黑啤展览馆 (Guinness Storehouse)</h3>
+            <p><strong>位置：</strong>都柏林圣詹姆斯门，St. James's Gate</p>
+            <p><strong>特色：</strong>全球最受欢迎的旅游景点之一！七层楼的互动体验，讲述Guinness黑啤250多年的酿造历史。顶楼是360度全景酒吧（Gravity Bar），可俯瞰都柏林全景，并免费品尝一杯正宗Guinness</p>
+            <p><strong>门票：</strong>约26欧元（含顶楼一杯Guinness）</p>
+            <p><strong>游玩时间：</strong>2-3小时</p>
+            <p><strong>💡 Tips：</strong>在顶楼Gravity Bar的落地玻璃窗前喝一杯刚倒好的Guinness，是都柏林最经典的体验！建议下午去，赶上日落更美。</p>
+            <a href="#" class="back-to-top">返回顶部</a>
+        </div>
+
+    </div>
+
+    <h2>实用信息</h2>
+    <div class="note-box">
+        <strong>签证：</strong>确保签证支持英爱互通（British-Irish Visa Scheme），以免入境受阻<br>
+        <strong>货币：</strong>英国用英镑(GBP)，爱尔兰用欧元(EUR)，北爱尔兰用英镑。建议准备两种货币或使用Visa/Mastercard<br>
+        <strong>语言：</strong>英语为主，苏格兰和爱尔兰口音较重但沟通无碍<br>
+        <strong>天气：</strong>英国已入深秋，苏格兰高地气温可能接近0°C。务必携带<strong>防风防雨冲锋衣</strong>和保暖层<br>
+        <strong>必备App：</strong>Google Maps（导航）、Trainline（火车票）、Uber/FreeNow（打车）、Google翻译<br>
+        <strong>插头：</strong>英国和爱尔兰均使用三脚方头插座（Type G），需带转换插头<br>
+        <strong>自驾提醒：</strong>靠左行驶！环形交叉路口（Roundabout）顺时针行驶，进入时让右方来车<br>
+        <strong>火车票：</strong>Trainline App 提前购买最划算，越早越便宜。可选Advance票型（不可改签但最便宜）<br>
+        <strong>退税：</strong>非欧盟居民在英国购物满一定金额可退税（离境前在机场办理）
+    </div>
+
+    <h2>💡 全程关键贴士</h2>
+    <div class="note-box">
+        <strong>1. 交通衔接：</strong><br>
+        • 伦敦至约克、约克至爱丁堡的火车票建议提前在 Trainline App 购买，越早越便宜<br>
+        • 格拉斯哥至都柏林的机票需提前预订，旺季票源紧张<br><br>
+        <strong>2. 自驾准备：</strong><br>
+        • 英国段（靠左行驶）：苏格兰高地山路多为单线车道，需特别注意会车安全<br>
+        • 爱尔兰段（靠左行驶）：乡村道路狭窄，建议租小型车<br><br>
+        <strong>3. 购物建议：</strong><br>
+        • 爱尔兰：羊毛围巾、Bewley's红茶、Jameson/Bushmills威士忌<br>
+        • 苏格兰：苏格兰威士忌、格子呢围巾、绵羊油护肤品<br>
+        • 英格兰：Fortnum & Mason 茶叶、约克巧克力
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const map = L.map('map').setView([54.5, -4], 5);
+            
+            const baseLayers = {
+                "高德地图": L.tileLayer('https://webrd0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}', {
+                    attribution: '&copy; 高德地图 AMap',
+                    subdomains: ['1','2','3','4'],
+                    maxZoom: 18
+                }).addTo(map),
+                "高德卫星": L.tileLayer('https://webst0{s}.is.autonavi.com/appmaptile?style=6&x={x}&y={y}&z={z}', {
+                    attribution: '&copy; 高德地图 AMap',
+                    subdomains: ['1','2','3','4'],
+                    maxZoom: 18
+                }),
+                "高德卫星标注": L.layerGroup([
+                    L.tileLayer('https://webst0{s}.is.autonavi.com/appmaptile?style=6&x={x}&y={y}&z={z}', {
+                        subdomains: ['1','2','3','4'], maxZoom: 18
+                    }),
+                    L.tileLayer('https://webst0{s}.is.autonavi.com/appmaptile?style=8&x={x}&y={y}&z={z}', {
+                        subdomains: ['1','2','3','4'], maxZoom: 18
+                    })
+                ]),
+                "OpenStreetMap": L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '&copy; OpenStreetMap contributors'
+                })
+            };
+            L.control.layers(baseLayers).addTo(map);
+
+            const cities = {
+                london:       [51.5074, -0.1278],
+                cambridge:    [52.2053,  0.1218],
+                york:         [53.9600, -1.0873],
+                edinburgh:    [55.9533, -3.1883],
+                inverness:    [57.4778, -4.2247],
+                fortWilliam:  [56.8198, -5.1052],
+                skye:         [57.5087, -6.1833],
+                glasgow:      [55.8642, -4.2518],
+                dublin:       [53.3498, -6.2603],
+                galway:       [53.2707, -9.0568],
+                cliffsOfMoher:[52.9715, -9.4309],
+                giantsCauseway:[55.2408,-6.5116],
+                belfast:      [54.5973, -5.9301]
+            };
+
+            // ===== 火车路线（紫色虚线）=====
+            const trainRoutes = [
+                { from: cities.london, to: cities.cambridge, name: "伦敦→剑桥", info: "火车约1小时" },
+                { from: cities.cambridge, to: cities.york, name: "剑桥→约克", info: "火车约2小时" },
+                { from: cities.york, to: cities.edinburgh, name: "约克→爱丁堡", info: "火车约2.5小时" }
+            ];
+            trainRoutes.forEach(route => {
+                L.polyline([route.from, route.to], {
+                    color: '#805ad5', weight: 3, opacity: 0.8, dashArray: '10, 10'
+                }).bindPopup(`<b>🚆 ${route.name}</b><br>${route.info}`).addTo(map);
+            });
+
+            // ===== 苏格兰自驾路线（绿色实线）=====
+            const scotlandDrive = [
+                cities.edinburgh,
+                [56.3960, -3.4370],   // Perth
+                [56.9345, -4.2387],   // Dalwhinnie
+                cities.inverness
+            ];
+            L.polyline(scotlandDrive, {
+                color: '#38a169', weight: 4, opacity: 0.8
+            }).bindPopup('<b>🚗 爱丁堡→因弗内斯（A9公路）</b><br>约3.5小时').addTo(map);
+
+            const highlandDrive = [
+                cities.inverness,
+                [57.3350, -4.4817],   // Drumnadrochit (Loch Ness)
+                [57.1445, -4.6812],   // Fort Augustus
+                [56.8858, -4.9224],   // Spean Bridge
+                cities.fortWilliam
+            ];
+            L.polyline(highlandDrive, {
+                color: '#38a169', weight: 4, opacity: 0.8
+            }).bindPopup('<b>🚗 因弗内斯→威廉堡（A82公路）</b><br>最美公路！沿尼斯湖行驶，约2小时').addTo(map);
+
+            const skyeDrive = [
+                cities.fortWilliam,
+                [57.0440, -4.9501],   // Invergarry
+                [57.2792, -5.7128],   // Kyle of Lochalsh
+                [57.4125, -6.1963],   // Portree
+                cities.skye
+            ];
+            L.polyline(skyeDrive, {
+                color: '#38a169', weight: 4, opacity: 0.8
+            }).bindPopup('<b>🚗 威廉堡→天空岛</b><br>约2.5小时，经天空桥上岛').addTo(map);
+
+            const returnGlasgow = [
+                cities.skye,
+                [57.4125, -6.1963],   // Portree
+                [57.2792, -5.7128],   // Kyle of Lochalsh
+                cities.fortWilliam,
+                [56.6826, -5.0249],   // Glen Coe
+                [56.3133, -4.6333],   // Crianlarich
+                cities.glasgow
+            ];
+            L.polyline(returnGlasgow, {
+                color: '#38a169', weight: 3, opacity: 0.5, dashArray: '5, 8'
+            }).bindPopup('<b>🚗 天空岛→格拉斯哥（还车）</b><br>约4小时').addTo(map);
+
+            // ===== 航班路线 =====
+            L.polyline([cities.london, [51.4700, -0.4543]], {
+                color: '#805ad5', weight: 2, opacity: 0.5, dashArray: '10, 10'
+            }).bindPopup('<b>✈ 抵达伦敦希思罗</b>').addTo(map);
+
+            L.polyline([cities.glasgow, cities.dublin], {
+                color: '#805ad5', weight: 3, opacity: 0.8, dashArray: '10, 10'
+            }).bindPopup('<b>✈ 格拉斯哥→都柏林</b><br>飞行约1小时').addTo(map);
+
+            // ===== 爱尔兰自驾路线（橙色实线）=====
+            const irelandDrive1 = [
+                cities.dublin,
+                [53.2000, -7.5000],   // Midlands
+                [52.6638, -8.6267],   // Limerick
+                cities.cliffsOfMoher
+            ];
+            L.polyline(irelandDrive1, {
+                color: '#dd6b20', weight: 4, opacity: 0.8
+            }).bindPopup('<b>🚗 都柏林→莫赫悬崖</b><br>约3小时').addTo(map);
+
+            const irelandDrive2 = [
+                cities.galway,
+                [53.7000, -8.8000],   // mid
+                [54.2766, -8.4761],   // Sligo
+                [54.6543, -8.1107],   // Donegal
+                [54.9966, -7.3086],   // Derry
+                cities.giantsCauseway
+            ];
+            L.polyline(irelandDrive2, {
+                color: '#dd6b20', weight: 4, opacity: 0.8
+            }).bindPopup('<b>🚗 戈尔韦→巨人堤道</b><br>沿海岸线北上，约5小时').addTo(map);
+
+            const irelandDrive3 = [
+                cities.giantsCauseway,
+                [54.8639, -6.2756],   // Ballymena
+                cities.belfast
+            ];
+            L.polyline(irelandDrive3, {
+                color: '#dd6b20', weight: 4, opacity: 0.8
+            }).bindPopup('<b>🚗 巨人堤道→贝尔法斯特</b><br>约1.5小时').addTo(map);
+
+            const irelandDrive4 = [
+                cities.belfast,
+                [54.1752, -6.3402],   // Newry
+                [53.9977, -6.4019],   // Dundalk
+                cities.dublin
+            ];
+            L.polyline(irelandDrive4, {
+                color: '#dd6b20', weight: 4, opacity: 0.8
+            }).bindPopup('<b>🚗 贝尔法斯特→都柏林</b><br>约2小时').addTo(map);
+
+            // 莫赫悬崖到戈尔韦短连接
+            L.polyline([cities.cliffsOfMoher, cities.galway], {
+                color: '#dd6b20', weight: 3, opacity: 0.6, dashArray: '5, 5'
+            }).bindPopup('<b>🚗 莫赫悬崖→戈尔韦</b><br>约1.5小时').addTo(map);
+
+            // ===== 城市标记 =====
+            const cityMarkers = [
+                {pos: cities.london, title: "伦敦 London", label: "1", desc: "D1-D3: 大英博物馆、泰晤士河夜景", color: "#e53e3e", phase: "E"},
+                {pos: cities.cambridge, title: "剑桥 Cambridge", label: "2", desc: "D3: 国王学院、康河", color: "#e53e3e", phase: "E"},
+                {pos: cities.york, title: "约克 York", label: "3", desc: "D3-D4: 肉铺街、约克大教堂", color: "#e53e3e", phase: "E"},
+                {pos: cities.edinburgh, title: "爱丁堡 Edinburgh", label: "4", desc: "D4-D5: 城堡、皇家英里大道", color: "#3182ce", phase: "S"},
+                {pos: cities.inverness, title: "因弗内斯 Inverness", label: "5", desc: "D5: 高地首府、尼斯湖", color: "#3182ce", phase: "S"},
+                {pos: cities.fortWilliam, title: "威廉堡 Fort William", label: "6", desc: "D6: 格伦芬南、格伦科、本尼维斯", color: "#3182ce", phase: "S"},
+                {pos: cities.skye, title: "天空岛 Isle of Skye", label: "7", desc: "D7: 老人峰", color: "#3182ce", phase: "S"},
+                {pos: cities.glasgow, title: "格拉斯哥 Glasgow", label: "8", desc: "D7: 还车+飞都柏林", color: "#3182ce", phase: "S"},
+                {pos: cities.dublin, title: "都柏林 Dublin", label: "9", desc: "D7-D8,D10-D12: 圣三一学院、健力士、Temple Bar", color: "#38a169", phase: "I"},
+                {pos: cities.cliffsOfMoher, title: "莫赫悬崖 Cliffs of Moher", label: "10", desc: "D8: 大西洋绝景", color: "#38a169", phase: "I"},
+                {pos: cities.giantsCauseway, title: "巨人堤道 Giant's Causeway", label: "11", desc: "D9: 世界自然遗产", color: "#38a169", phase: "I"},
+                {pos: cities.belfast, title: "贝尔法斯特 Belfast", label: "12", desc: "D9-D10: 泰坦尼克号博物馆、和平墙", color: "#38a169", phase: "I"}
+            ];
+            
+            cityMarkers.forEach(marker => {
+                const icon = L.divIcon({
+                    html: `<div style="
+                        background-color:${marker.color};
+                        border-radius:50%;
+                        width:28px;
+                        height:28px;
+                        text-align:center;
+                        line-height:28px;
+                        font-size:13px;
+                        font-weight:bold;
+                        color:white;
+                        border:3px solid white;
+                        box-shadow:0 2px 6px rgba(0,0,0,0.3);
+                    ">${marker.label}</div>`,
+                    className: '',
+                    iconSize: [28, 28],
+                    iconAnchor: [14, 14]
+                });
+                
+                const amapUrl = `https://uri.amap.com/marker?position=${marker.pos[1]},${marker.pos[0]}&name=${encodeURIComponent(marker.title)}&coordinate=wgs84`;
+                L.marker(marker.pos, {icon: icon})
+                    .bindPopup(`
+                        <div style="min-width:200px">
+                            <b>${marker.title}</b><br>
+                            ${marker.desc}<br>
+                            <hr style="margin:5px 0;border-color:#eee">
+                            <a href="${amapUrl}" target="_blank" style="color:#1890ff;font-weight:bold;text-decoration:none">
+                                📍 在高德地图中查看 →
+                            </a>
+                        </div>
+                    `)
+                    .addTo(map);
+                
+                L.marker(marker.pos, {
+                    icon: L.divIcon({
+                        html: `<div style="
+                            white-space:nowrap;
+                            font-size:11px;
+                            font-weight:bold;
+                            color:${marker.color};
+                            text-shadow:1px 1px 2px white, -1px -1px 2px white;
+                            margin-top:18px;
+                        ">${marker.title.split(' ')[0]}</div>`,
+                        className: '',
+                        iconSize: null,
+                        iconAnchor: [-18, 0]
+                    })
+                }).addTo(map);
+            });
+
+            // ===== 特色景点标记 =====
+            const attractions = [
+                // London
+                {pos: [51.5194, -0.1270], name: "大英博物馆", nameEn: "British Museum", day: "D1-D2", icon: "🏛️", color: "#e53e3e"},
+                {pos: [51.5081, -0.1281], name: "特拉法加广场", nameEn: "Trafalgar Square", day: "D1", icon: "🏛️", color: "#e53e3e"},
+                {pos: [51.5033, -0.1196], name: "伦敦眼", nameEn: "London Eye", day: "D1", icon: "🎡", color: "#e53e3e"},
+                {pos: [51.5007, -0.1246], name: "大本钟", nameEn: "Big Ben", day: "D1", icon: "🕐", color: "#e53e3e"},
+                {pos: [51.5322, -0.1240], name: "9¾站台", nameEn: "Platform 9¾", day: "D2", icon: "🧙", color: "#e53e3e"},
+                // Scotland
+                {pos: [57.3229, -4.4244], name: "尼斯湖", nameEn: "Loch Ness", day: "D5", icon: "🦕", color: "#3182ce"},
+                {pos: [56.8762, -5.4318], name: "格伦芬南高架桥", nameEn: "Glenfinnan Viaduct", day: "D6", icon: "🚂", color: "#3182ce"},
+                {pos: [56.6826, -5.0249], name: "格伦科峡谷", nameEn: "Glen Coe", day: "D6", icon: "🏔️", color: "#3182ce"},
+                // Ireland
+                {pos: [53.3438, -6.2546], name: "圣三一学院", nameEn: "Trinity College", day: "D11", icon: "📚", color: "#38a169"},
+                {pos: [53.3418, -6.2867], name: "健力士黑啤", nameEn: "Guinness Storehouse", day: "D11", icon: "🍺", color: "#38a169"},
+                {pos: [54.6081, -5.9095], name: "泰坦尼克博物馆", nameEn: "Titanic Belfast", day: "D9", icon: "🚢", color: "#38a169"}
+            ];
+
+            attractions.forEach(attr => {
+                const attrIcon = L.divIcon({
+                    html: `<div style="
+                        background-color: white;
+                        border: 2px solid ${attr.color};
+                        border-radius: 50%;
+                        width: 24px;
+                        height: 24px;
+                        text-align: center;
+                        line-height: 24px;
+                        font-size: 13px;
+                        box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+                        cursor: pointer;
+                    ">${attr.icon}</div>`,
+                    className: '',
+                    iconSize: [24, 24],
+                    iconAnchor: [12, 12]
+                });
+
+                const amapAttrUrl = `https://uri.amap.com/marker?position=${attr.pos[1]},${attr.pos[0]}&name=${encodeURIComponent(attr.name)}&coordinate=wgs84`;
+                L.marker(attr.pos, {icon: attrIcon})
+                    .bindPopup(`
+                        <div style="min-width:160px">
+                            <b>${attr.icon} ${attr.name}</b><br>
+                            <small style="color:#666">${attr.nameEn}</small><br>
+                            <span style="color:${attr.color};font-weight:bold">${attr.day}</span><br>
+                            <a href="${amapAttrUrl}" target="_blank" style="color:#1890ff;font-size:12px;text-decoration:none">
+                                📍 高德地图 →
+                            </a>
+                        </div>
+                    `)
+                    .addTo(map);
+            });
+
+            // ===== 路线标签 =====
+            const routeLabels = [
+                {pos: [52.85, -0.01], text: "🚆 火车D3", color: "#805ad5"},
+                {pos: [54.95, -2.14], text: "🚆 火车D4", color: "#805ad5"},
+                {pos: [57.2, -3.8], text: "🚗 A9公路", color: "#38a169"},
+                {pos: [57.05, -4.9], text: "🚗 A82最美公路", color: "#38a169"},
+                {pos: [54.7, -5.3], text: "✈ 飞都柏林", color: "#805ad5"},
+                {pos: [53.0, -8.0], text: "🚗 D8西行", color: "#dd6b20"},
+                {pos: [54.6, -7.5], text: "🚗 D9北上", color: "#dd6b20"},
+                {pos: [54.1, -5.9], text: "🚗 D10南返", color: "#dd6b20"}
+            ];
+
+            routeLabels.forEach(label => {
+                L.marker(label.pos, {
+                    icon: L.divIcon({
+                        html: `<div class="horizontal-label" style="border-color:${label.color};color:${label.color}">${label.text}</div>`,
+                        className: 'route-label',
+                        iconSize: null
+                    })
+                }).addTo(map);
+            });
+
+            map.fitBounds([
+                [51, -10],
+                [58, 1]
+            ]);
+        });
+    </script>
+</body>
+</html>
