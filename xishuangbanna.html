@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>西双版纳3日自驾行程总表</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <style>
+        body {
+            font-family: 'Microsoft YaHei', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 1800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f0f4f8;
+        }
+        h1 {
+            color: #1a365d;
+            text-align: center;
+            border-bottom: 2px solid #38a169;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #2f855a;
+            border-left: 4px solid #48bb78;
+            padding-left: 10px;
+        }
+        #map {
+            height: 500px;
+            margin: 20px 0;
+            border: 2px solid #48bb78;
+            border-radius: 8px;
+        }
+        .itinerary-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background-color: white;
+            box-shadow: 0 2px 3px rgba(0,0,0,0.1);
+        }
+        .itinerary-table th, .itinerary-table td {
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            vertical-align: top;
+        }
+        .itinerary-table th {
+            background-color: #2f855a;
+            color: white;
+        }
+        .drive-segment {
+            color: #38a169;
+            font-weight: bold;
+        }
+        .walk-segment {
+            color: #805ad5;
+            font-weight: bold;
+        }
+        .city-segment {
+            color: #dd6b20;
+            font-weight: bold;
+        }
+        .day1-highlight {
+            background-color: #fefcbf;
+        }
+        .day2-highlight {
+            background-color: #ebf8ff;
+        }
+        .day3-highlight {
+            background-color: #f0fff4;
+        }
+        .flight-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        .flight-table th, .flight-table td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+        .flight-table th {
+            background-color: #2f855a;
+            color: white;
+        }
+        .map-legend {
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 0 5px rgba(0,0,0,0.2);
+            line-height: 1.8;
+        }
+        .horizontal-label {
+            white-space: nowrap;
+            display: inline-block;
+            font-size: 14px;
+            text-shadow: 1px 1px 2px white;
+            padding: 2px 8px;
+            background: rgba(255,255,255,0.7);
+            border-radius: 4px;
+            border: 1px solid currentColor;
+            transform: translate(-50%, 0);
+            pointer-events: none;
+        }
+        .attraction-link {
+            color: #2f855a;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s;
+            border-bottom: 1px dashed #48bb78;
+            padding-bottom: 1px;
+        }
+        .attraction-link:hover {
+            color: #c53030;
+            border-bottom: 1px solid #c53030;
+        }
+        .guide-section {
+            margin-bottom: 30px;
+            padding: 15px;
+            background: #f9f9f9;
+            border-left: 4px solid #48bb78;
+        }
+        .back-to-top {
+            display: block;
+            text-align: right;
+            color: #7f8c8d;
+            font-size: 0.9em;
+        }
+        .nav-point {
+            font-size: 14px;
+            color: #38a169;
+        }
+        .scenic-badge {
+            display: inline-block;
+            background: linear-gradient(45deg, #38a169, #3182ce);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            margin-left: 5px;
+        }
+        .food-badge {
+            display: inline-block;
+            background: linear-gradient(45deg, #dd6b20, #c53030);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            margin-left: 5px;
+        }
+        .culture-badge {
+            display: inline-block;
+            background: linear-gradient(45deg, #805ad5, #d53f8c);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            margin-left: 5px;
+        }
+        .note-box {
+            background: #fffbeb;
+            border-left: 4px solid #f6e05e;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        .phase-header {
+            background: #f0fff4;
+            border-left: 4px solid #38a169;
+            padding: 10px 15px;
+            margin: 25px 0 10px 0;
+            font-size: 16px;
+            font-weight: bold;
+            color: #1a365d;
+        }
+    </style>
+</head>
+<body>
+    <h1>西双版纳3日自驾行程总表 🌴🐘</h1>
+    
+    <div class="note-box">
+        <strong>行程亮点：</strong>曼听公园傣王御花园 → 总佛寺南传佛教圣地 → 星光夜市大金塔夜景 → 野象谷雨林观象 → 中科院热带植物园 → 告庄傣味美食 → 傣族园泼水狂欢 → 原始森林公园雨林徒步
+    </div>
+
+    <div id="map"></div>
+    <div class="map-legend">
+        <strong>地图图例：</strong><br>
+        <span style="color:#dd6b20;font-weight:bold">—— Day 1 市区路线</span> | 
+        <span style="color:#3182ce;font-weight:bold">—— Day 2 东线路线</span> | 
+        <span style="color:#38a169;font-weight:bold">—— Day 3 西线路线</span><br>
+        <span style="display:inline-block;background:#dd6b20;color:white;border-radius:50%;width:20px;height:20px;text-align:center;line-height:20px;font-size:12px;font-weight:bold">1</span> Day 1 景点 | 
+        <span style="display:inline-block;background:#3182ce;color:white;border-radius:50%;width:20px;height:20px;text-align:center;line-height:20px;font-size:12px;font-weight:bold">2</span> Day 2 景点 | 
+        <span style="display:inline-block;background:#38a169;color:white;border-radius:50%;width:20px;height:20px;text-align:center;line-height:20px;font-size:12px;font-weight:bold">3</span> Day 3 景点<br>
+        <small>💡 右上角可切换 高德地图/卫星/OSM图层 | 点击标记查看详情</small>
+    </div>
+
+    <h2>完整行程表</h2>
+
+    <div class="phase-header">🌺 Day 1（4.11 周六）：市区文化体验</div>
+    <table class="itinerary-table">
+        <tr>
+            <th>景点</th>
+            <th>交通距离+时间</th>
+            <th>主要游玩点</th>
+            <th>建议时间</th>
+            <th>备注</th>
+        </tr>
+        <tr class="day1-highlight">
+            <td><a href="#曼听公园攻略" class="attraction-link">曼听公园</a><span class="culture-badge">🏛️ 文化</span></td>
+            <td><span class="drive-segment">🚗 5km / 10分钟</span></td>
+            <td>傣王御花园、孔雀园、傣式建筑拍照</td>
+            <td>上午 2-3小时</td>
+            <td>建议上午入园，光线好拍照美<br>穿傣族服饰拍照超出片</td>
+        </tr>
+        <tr class="day1-highlight">
+            <td><a href="#总佛寺攻略" class="attraction-link">总佛寺</a><span class="culture-badge">🙏 祈福</span></td>
+            <td><span class="drive-segment">🚗 2km / 5分钟</span></td>
+            <td>南传佛教圣地、大金殿、静心祈福</td>
+            <td>中午 1-1.5小时</td>
+            <td>紧邻曼听公园，可步行前往<br>注意着装要求（不露膝盖和肩膀）</td>
+        </tr>
+        <tr class="day1-highlight">
+            <td><a href="#星光夜市攻略" class="attraction-link">星光夜市+大金塔</a><span class="food-badge">🍜 美食</span></td>
+            <td><span class="walk-segment">🚶 步行3分钟</span></td>
+            <td>夜市逛吃、拍大金塔夜景、买伴手礼</td>
+            <td>傍晚-夜间 2-3小时</td>
+            <td>大金塔亮灯后拍照最佳<br>夜市小吃种类丰富，建议慢慢逛</td>
+        </tr>
+    </table>
+
+    <div class="phase-header">🐘 Day 2（4.12 周日）：雨林探秘+植物王国</div>
+    <table class="itinerary-table">
+        <tr>
+            <th>景点</th>
+            <th>交通距离+时间</th>
+            <th>主要游玩点</th>
+            <th>建议时间</th>
+            <th>备注</th>
+        </tr>
+        <tr class="day2-highlight">
+            <td><a href="#野象谷攻略" class="attraction-link">野象谷</a><span class="scenic-badge">🐘 雨林</span></td>
+            <td><span class="drive-segment">🚗 35km / 40分钟</span></td>
+            <td>雨林牧象、大象表演、高空栈道观象</td>
+            <td>上午 3-4小时</td>
+            <td>建议早起出发，上午偶遇野象概率更高<br>高空栈道全长约2km</td>
+        </tr>
+        <tr class="day2-highlight">
+            <td><a href="#植物园攻略" class="attraction-link">中科院热带植物园</a><span class="scenic-badge">🌿 植物</span></td>
+            <td><span class="drive-segment">🚗 55km / 50分钟</span></td>
+            <td>西区百花园、奇花异卉园、王莲池</td>
+            <td>下午 3-4小时</td>
+            <td>中国面积最大的植物园<br>建议乘坐园内电瓶车游览</td>
+        </tr>
+        <tr class="day2-highlight">
+            <td><a href="#告庄夜市攻略" class="attraction-link">告庄夜市晚餐</a><span class="food-badge">🍜 美食</span></td>
+            <td><span class="drive-segment">🚗 55km / 50分钟</span></td>
+            <td>傣味火锅、热带水果、特色小吃</td>
+            <td>晚上 2小时</td>
+            <td>告庄西双景是版纳最热闹的夜市<br>推荐傣味烧烤和手抓饭</td>
+        </tr>
+    </table>
+
+    <div class="phase-header">💧 Day 3（4.13 周一）：民族风情+返程</div>
+    <table class="itinerary-table">
+        <tr>
+            <th>景点</th>
+            <th>交通距离+时间</th>
+            <th>主要游玩点</th>
+            <th>建议时间</th>
+            <th>备注</th>
+        </tr>
+        <tr class="day3-highlight">
+            <td><a href="#傣族园攻略" class="attraction-link">傣族园</a><span class="culture-badge">💧 泼水</span></td>
+            <td><span class="drive-segment">🚗 25km / 30分钟</span></td>
+            <td>泼水节狂欢、傣家村落、民族歌舞</td>
+            <td>上午 2-3小时</td>
+            <td>每天有固定泼水活动<br>建议带换洗衣物和防水手机套</td>
+        </tr>
+        <tr class="day3-highlight">
+            <td><a href="#原始森林攻略" class="attraction-link">原始森林公园</a><span class="scenic-badge">🌳 雨林</span></td>
+            <td><span class="drive-segment">🚗 15km / 20分钟</span></td>
+            <td>孔雀放飞、雨林徒步、沟谷雨林</td>
+            <td>中午 2-3小时</td>
+            <td>孔雀放飞表演非常震撼<br>注意查看演出时间表</td>
+        </tr>
+        <tr class="day3-highlight">
+            <td>返程机场 ✈️</td>
+            <td><span class="drive-segment">🚗 12km / 15分钟</span></td>
+            <td>还车、机场午餐、登机</td>
+            <td>下午</td>
+            <td>预留充足时间还车和值机<br>机场有特产商店可购买最后的伴手礼</td>
+        </tr>
+    </table>
+
+    <h2>交通信息</h2>
+    <h3>🚗 自驾路线概览</h3>
+    <table class="flight-table">
+        <tr>
+            <th>日期</th>
+            <th>区间</th>
+            <th>距离/时间</th>
+            <th>备注</th>
+        </tr>
+        <tr style="background-color:#fefcbf">
+            <td>Day 1</td>
+            <td>酒店 → 曼听公园</td>
+            <td>5km / 10分钟</td>
+            <td>市区内，路况好</td>
+        </tr>
+        <tr style="background-color:#fefcbf">
+            <td>Day 1</td>
+            <td>曼听公园 → 总佛寺</td>
+            <td>2km / 5分钟</td>
+            <td>步行可达</td>
+        </tr>
+        <tr style="background-color:#fefcbf">
+            <td>Day 1</td>
+            <td>总佛寺 → 星光夜市</td>
+            <td>步行3分钟</td>
+            <td>紧邻告庄</td>
+        </tr>
+        <tr style="background-color:#ebf8ff">
+            <td>Day 2</td>
+            <td>酒店 → 野象谷</td>
+            <td>35km / 40分钟</td>
+            <td>走高速（思小高速）</td>
+        </tr>
+        <tr style="background-color:#ebf8ff">
+            <td>Day 2</td>
+            <td>野象谷 → 中科院植物园</td>
+            <td>55km / 50分钟</td>
+            <td>经勐仑方向</td>
+        </tr>
+        <tr style="background-color:#ebf8ff">
+            <td>Day 2</td>
+            <td>植物园 → 告庄夜市</td>
+            <td>55km / 50分钟</td>
+            <td>返回景洪市区</td>
+        </tr>
+        <tr style="background-color:#f0fff4">
+            <td>Day 3</td>
+            <td>酒店 → 傣族园</td>
+            <td>25km / 30分钟</td>
+            <td>沿澜沧江南下</td>
+        </tr>
+        <tr style="background-color:#f0fff4">
+            <td>Day 3</td>
+            <td>傣族园 → 原始森林公园</td>
+            <td>15km / 20分钟</td>
+            <td>返回市区方向</td>
+        </tr>
+        <tr style="background-color:#f0fff4">
+            <td>Day 3</td>
+            <td>原始森林公园 → 机场</td>
+            <td>12km / 15分钟</td>
+            <td>嘎洒国际机场</td>
+        </tr>
+    </table>
+
+    <h2>自驾租车信息</h2>
+    <div class="note-box">
+        <strong>🚗 租车建议</strong><br>
+        • <strong>取车：</strong>嘎洒国际机场或景洪市区门店<br>
+        • <strong>还车：</strong>嘎洒国际机场（Day 3 下午）<br>
+        • <strong>租期：</strong>3天<br>
+        • <strong>建议车型：</strong>SUV或轿车均可（路况较好）<br><br>
+        <strong>⚠️ 自驾注意事项：</strong><br>
+        • <strong>山路弯道：</strong>部分路段为山路，弯道多，注意控制车速<br>
+        • <strong>雨季路滑：</strong>4月已进入雨季前期，路面可能湿滑<br>
+        • <strong>野生动物：</strong>野象谷附近可能有野象出没，注意路边警示牌<br>
+        • <strong>导航：</strong>建议使用高德地图，提前下载离线地图<br>
+        • <strong>加油：</strong>市区加油站充足，出城前建议加满油
+    </div>
+
+    <h2>住宿信息（建议）</h2>
+    <table class="flight-table">
+        <tr>
+            <th>日期</th>
+            <th>城市</th>
+            <th>建议区域</th>
+            <th>入住天数</th>
+        </tr>
+        <tr style="background-color:#fefcbf">
+            <td>4.11 - 4.12</td>
+            <td>🌴 景洪</td>
+            <td>🏨 告庄西双景附近（靠近星光夜市、大金塔，吃住方便）</td>
+            <td>2晚</td>
+        </tr>
+        <tr style="background-color:#f0fff4">
+            <td>4.12 - 4.13</td>
+            <td>🌴 景洪</td>
+            <td>🏨 同上或市区江边酒店（澜沧江景房更有氛围）</td>
+            <td>同上</td>
+        </tr>
+    </table>
+    <div class="note-box">
+        <strong>备注：</strong>共2晚住宿。建议住告庄西双景区域，步行可达夜市和大金塔，夜生活丰富。4月是旺季，建议提前在携程/美团预订。
+    </div>
+
+    <h2>景点导航目的地</h2>
+    <ul>
+        <li><span class="nav-point">曼听公园</span>：导航至 "曼听公园，景洪市曼听路35号"</li>
+        <li><span class="nav-point">总佛寺</span>：导航至 "西双版纳总佛寺，景洪市曼听路"</li>
+        <li><span class="nav-point">星光夜市</span>：导航至 "告庄西双景星光夜市，景洪市"</li>
+        <li><span class="nav-point">大金塔</span>：导航至 "景洪大金塔，告庄西双景"</li>
+        <li><span class="nav-point">野象谷</span>：导航至 "野象谷景区，西双版纳勐养镇"</li>
+        <li><span class="nav-point">中科院热带植物园</span>：导航至 "中国科学院西双版纳热带植物园，勐仑镇"</li>
+        <li><span class="nav-point">告庄夜市</span>：导航至 "告庄西双景，景洪市"</li>
+        <li><span class="nav-point">傣族园</span>：导航至 "傣族园景区，西双版纳橄榄坝"</li>
+        <li><span class="nav-point">原始森林公园</span>：导航至 "西双版纳原始森林公园，景洪市"</li>
+        <li><span class="nav-point">嘎洒机场</span>：导航至 "西双版纳嘎洒国际机场"</li>
+    </ul>
+
+    <h2>景点游玩攻略</h2>
+    <div id="attraction-guides">
+
+        <div id="曼听公园攻略" class="guide-section">
+            <h3>🌺 曼听公园</h3>
+            <p><strong>位置：</strong>景洪市曼听路35号</p>
+            <p><strong>游玩时间：</strong>2-3小时</p>
+            <p><strong>特色：</strong>原为傣王的御花园，已有1300多年历史，是西双版纳最古老的公园。园内热带植物繁茂，傣式建筑错落有致，孔雀成群，被誉为"灵魂之园"</p>
+            <p><strong>必看：</strong>傣王御花园旧址、孔雀园（孔雀放飞）、总佛寺白塔、周恩来泼水纪念铜像</p>
+            <p><strong>门票：</strong>约40元</p>
+            <p><strong>开放时间：</strong>08:00-17:00</p>
+            <p><strong>💡 Tips：</strong>建议穿傣族服饰入园拍照，园内有租赁点。上午光线柔和最适合拍照。晚上有"澜沧江·湄公河之夜"篝火晚会（需另购票）。</p>
+            <a href="#" class="back-to-top">返回顶部</a>
+        </div>
+
+        <div id="总佛寺攻略" class="guide-section">
+            <h3>🙏 总佛寺（曼听大佛寺）</h3>
+            <p><strong>位置：</strong>景洪市曼听路，紧邻曼听公园</p>
+            <p><strong>游玩时间：</strong>1-1.5小时</p>
+            <p><strong>特色：</strong>西双版纳佛教信徒朝圣的中心，南传上座部佛教的重要寺院。大金殿金碧辉煌，建筑风格融合了东南亚佛教特色</p>
+            <p><strong>必看：</strong>大金殿（主殿）、转经筒长廊、佛学院、精美壁画</p>
+            <p><strong>门票：</strong>免费</p>
+            <p><strong>开放时间：</strong>08:00-17:00</p>
+            <p><strong>💡 Tips：</strong>进入寺院需脱鞋，穿着不宜暴露（不露膝盖和肩膀）。寺内氛围宁静，适合静心感受南传佛教文化。</p>
+            <a href="#" class="back-to-top">返回顶部</a>
+        </div>
+
+        <div id="星光夜市攻略" class="guide-section">
+            <h3>🌙 星光夜市 + 大金塔</h3>
+            <p><strong>位置：</strong>景洪市告庄西双景内</p>
+            <p><strong>游玩时间：</strong>2-3小时</p>
+            <p><strong>特色：</strong>西双版纳最大的夜市，数百个摊位沿湄公河畔铺开。大金塔是告庄地标，夜间灯光璀璨，是拍照打卡的绝佳地点</p>
+            <p><strong>必吃：</strong>傣味烧烤、菠萝饭、竹筒饭、烤五花肉、鲜榨果汁、炸虫子（挑战型）</p>
+            <p><strong>必买：</strong>傣族手工艺品、热带干果、普洱茶饼、精油香薰</p>
+            <p><strong>开放时间：</strong>约17:00-23:00</p>
+            <p><strong>💡 Tips：</strong>大金塔最佳拍摄时间是天色刚暗、灯光亮起时（约19:00-20:00）。夜市人多，注意随身物品安全。</p>
+            <a href="#" class="back-to-top">返回顶部</a>
+        </div>
+
+        <div id="野象谷攻略" class="guide-section">
+            <h3>🐘 野象谷</h3>
+            <p><strong>位置：</strong>西双版纳勐养镇，距景洪约35km</p>
+            <p><strong>游玩时间：</strong>3-4小时</p>
+            <p><strong>特色：</strong>中国唯一一处可以近距离安全观赏亚洲野象的地方。景区内有高空栈道穿越热带雨林，运气好可以看到野象群出没</p>
+            <p><strong>必看：</strong>高空观象栈道（约2km）、亚洲象繁育基地、蝴蝶园、百鸟园</p>
+            <p><strong>门票：</strong>约60元（索道另付）</p>
+            <p><strong>开放时间：</strong>08:00-18:00</p>
+            <p><strong>💡 Tips：</strong>上午偶遇野象的概率更高。建议穿长裤和防蚊衣物，雨林中蚊虫较多。索道可以俯瞰雨林全景，值得体验。</p>
+            <a href="#" class="back-to-top">返回顶部</a>
+        </div>
+
+        <div id="植物园攻略" class="guide-section">
+            <h3>🌿 中科院西双版纳热带植物园</h3>
+            <p><strong>位置：</strong>勐腊县勐仑镇，距景洪约55km</p>
+            <p><strong>游玩时间：</strong>3-4小时</p>
+            <p><strong>特色：</strong>中国面积最大、收集物种最丰富的植物园，被誉为"植物王国的缩影"。园内有13000多种热带植物，是国家5A级景区</p>
+            <p><strong>必看：</strong>西区百花园（花卉品种最多）、奇花异卉园（见血封喉树、跳舞草）、王莲池（可坐在莲叶上拍照）、热带雨林区</p>
+            <p><strong>门票：</strong>约80元（电瓶车另付约50元）</p>
+            <p><strong>开放时间：</strong>08:00-18:00</p>
+            <p><strong>💡 Tips：</strong>植物园面积巨大（约1125公顷），强烈建议乘坐电瓶车游览。重点游览西区即可，东区为原始热带雨林区（需额外时间）。</p>
+            <a href="#" class="back-to-top">返回顶部</a>
+        </div>
+
+        <div id="告庄夜市攻略" class="guide-section">
+            <h3>🍜 告庄西双景夜市</h3>
+            <p><strong>位置：</strong>景洪市告庄西双景</p>
+            <p><strong>游玩时间：</strong>2小时</p>
+            <p><strong>特色：</strong>"告庄"意为"九塔十二寨"，是按傣族古城格局打造的文旅综合体。夜晚的告庄灯火辉煌，傣楼、佛塔与现代商业完美融合</p>
+            <p><strong>必吃：</strong>傣味火锅（酸笋鱼火锅）、手抓饭、香茅草烤鱼、舂鸡脚、热带水果（菠萝蜜、山竹、释迦果）</p>
+            <p><strong>推荐餐厅区域：</strong>湄公河畔餐厅、告庄大金塔周边美食街</p>
+            <p><strong>💡 Tips：</strong>告庄西双景内餐厅品质参差不齐，建议选择人气较旺的店铺。傣味菜偏酸辣，不习惯可以提前说明口味。</p>
+            <a href="#" class="back-to-top">返回顶部</a>
+        </div>
+
+        <div id="傣族园攻略" class="guide-section">
+            <h3>💧 傣族园（橄榄坝）</h3>
+            <p><strong>位置：</strong>景洪市勐罕镇（橄榄坝），距景洪约25km</p>
+            <p><strong>游玩时间：</strong>2-3小时</p>
+            <p><strong>特色：</strong>由五个保存完好的傣族自然村寨组成，是体验傣族文化最地道的地方。每天有固定的泼水活动，让你在非泼水节期间也能感受泼水狂欢</p>
+            <p><strong>必体验：</strong>泼水广场泼水狂欢（每天定时举办）、傣家竹楼参观、傣族歌舞表演、傣族手工织锦</p>
+            <p><strong>门票：</strong>约45元（泼水活动另付约40元）</p>
+            <p><strong>开放时间：</strong>08:00-18:00</p>
+            <p><strong>💡 Tips：</strong>参加泼水活动务必带好防水手机套和换洗衣物！园内有更衣室。泼水活动一般在下午，建议提前确认当天时间。</p>
+            <a href="#" class="back-to-top">返回顶部</a>
+        </div>
+
+        <div id="原始森林攻略" class="guide-section">
+            <h3>🌳 西双版纳原始森林公园</h3>
+            <p><strong>位置：</strong>景洪市区东北方向，距市区约15km</p>
+            <p><strong>游玩时间：</strong>2-3小时</p>
+            <p><strong>特色：</strong>在25000亩热带沟谷雨林的基础上建设的国家4A级景区。这里是距离景洪市区最近的原始森林，可以不出远门就感受热带雨林的神秘</p>
+            <p><strong>必看：</strong>孔雀放飞（数百只孔雀从山顶飞下，极其壮观）、爱伲山寨（体验少数民族文化）、沟谷雨林徒步（板根、绞杀榕、空中花园）</p>
+            <p><strong>门票：</strong>约45元（电瓶车另付约40元）</p>
+            <p><strong>开放时间：</strong>08:00-18:00</p>
+            <p><strong>💡 Tips：</strong>孔雀放飞表演一天有多场，入园后先确认放飞时间以便安排游览顺序。雨林徒步路段较湿滑，穿防滑鞋。</p>
+            <a href="#" class="back-to-top">返回顶部</a>
+        </div>
+
+    </div>
+
+    <h2>实用信息</h2>
+    <div class="note-box">
+        <strong>天气：</strong>4月中旬气温约22-34°C，正值干季末期，天气炎热。建议穿轻薄透气衣物，做好防晒<br>
+        <strong>防晒：</strong>紫外线强，必备防晒霜（SPF50+）、太阳帽、墨镜<br>
+        <strong>防蚊：</strong>热带雨林蚊虫多，随身携带驱蚊液（推荐含DEET成分）<br>
+        <strong>货币：</strong>微信/支付宝覆盖率高，但建议备少量现金（夜市部分摊位）<br>
+        <strong>语言：</strong>普通话通用，部分傣族村寨老人可能使用傣语<br>
+        <strong>饮食：</strong>傣味菜偏酸辣，肠胃敏感者注意适量。热带水果丰富，推荐品尝当地时令水果<br>
+        <strong>穿着：</strong>进入寺庙需着装得体（不露膝盖和肩膀），建议准备一条长裙或长裤<br>
+        <strong>必备App：</strong>高德地图（导航）、携程/美团（门票酒店）、大众点评（美食）<br>
+        <strong>机场：</strong>西双版纳嘎洒国际机场（JHG），距景洪市区约5km
+    </div>
+
+    <h2>💡 全程关键贴士</h2>
+    <div class="note-box">
+        <strong>1. 行程节奏：</strong><br>
+        • Day 1 以市区文化体验为主，节奏轻松，适合调整状态<br>
+        • Day 2 车程较多（总计约145km），建议早起出发<br>
+        • Day 3 安排较松，下午返程，不赶时间<br><br>
+        <strong>2. 美食推荐：</strong><br>
+        • 傣味烧烤（烤五花肉、包烧系列）<br>
+        • 酸笋鱼火锅（傣族特色）<br>
+        • 手抓饭（糯米饭+各种配菜）<br>
+        • 香茅草烤鱼/烤鸡<br>
+        • 热带水果（菠萝蜜、释迦果、鸡蛋果、山竹）<br><br>
+        <strong>3. 购物建议：</strong><br>
+        • 普洱茶（版纳是普洱茶核心产区）<br>
+        • 傣族手工艺品（织锦、银饰）<br>
+        • 热带水果干<br>
+        • 小粒咖啡<br>
+        • 傣药/精油
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const map = L.map('map').setView([22.0, 100.8], 11);
+            
+            const baseLayers = {
+                "高德地图": L.tileLayer('https://webrd0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}', {
+                    attribution: '&copy; 高德地图 AMap',
+                    subdomains: ['1','2','3','4'],
+                    maxZoom: 18
+                }).addTo(map),
+                "高德卫星": L.tileLayer('https://webst0{s}.is.autonavi.com/appmaptile?style=6&x={x}&y={y}&z={z}', {
+                    attribution: '&copy; 高德地图 AMap',
+                    subdomains: ['1','2','3','4'],
+                    maxZoom: 18
+                }),
+                "OpenStreetMap": L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '&copy; OpenStreetMap contributors'
+                })
+            };
+            L.control.layers(baseLayers).addTo(map);
+
+            const places = {
+                hotel:          [22.0050, 100.7970],
+                manting:        [21.9890, 100.7980],
+                zongfosi:       [21.9910, 100.7950],
+                nightMarket:    [22.0060, 100.7930],
+                jinTa:          [22.0055, 100.7935],
+                yexianggu:      [22.1710, 100.8690],
+                botanicGarden:  [21.9230, 101.2520],
+                gaozhuang:      [22.0060, 100.7930],
+                daiPark:        [21.8640, 100.8870],
+                forestPark:     [22.0190, 100.8530],
+                airport:        [21.9740, 100.7600]
+            };
+
+            // Day 1 路线（橙色）
+            const day1Route = [
+                places.hotel,
+                places.manting,
+                places.zongfosi,
+                places.nightMarket
+            ];
+            L.polyline(day1Route, {
+                color: '#dd6b20', weight: 4, opacity: 0.8
+            }).bindPopup('<b>Day 1 市区路线</b><br>酒店→曼听公园→总佛寺→星光夜市').addTo(map);
+
+            // Day 2 路线（蓝色）
+            const day2Route1 = [
+                places.hotel,
+                [22.05, 100.83],
+                places.yexianggu
+            ];
+            L.polyline(day2Route1, {
+                color: '#3182ce', weight: 4, opacity: 0.8
+            }).bindPopup('<b>Day 2 上午</b><br>酒店→野象谷（35km/40分钟）').addTo(map);
+
+            const day2Route2 = [
+                places.yexianggu,
+                [22.05, 101.05],
+                [21.95, 101.15],
+                places.botanicGarden
+            ];
+            L.polyline(day2Route2, {
+                color: '#3182ce', weight: 4, opacity: 0.8
+            }).bindPopup('<b>Day 2 下午</b><br>野象谷→中科院植物园（55km/50分钟）').addTo(map);
+
+            const day2Route3 = [
+                places.botanicGarden,
+                [21.95, 101.15],
+                [22.0, 101.0],
+                places.gaozhuang
+            ];
+            L.polyline(day2Route3, {
+                color: '#3182ce', weight: 3, opacity: 0.5, dashArray: '5, 8'
+            }).bindPopup('<b>Day 2 晚上</b><br>植物园→告庄夜市（55km/50分钟）').addTo(map);
+
+            // Day 3 路线（绿色）
+            const day3Route1 = [
+                places.hotel,
+                [21.95, 100.83],
+                places.daiPark
+            ];
+            L.polyline(day3Route1, {
+                color: '#38a169', weight: 4, opacity: 0.8
+            }).bindPopup('<b>Day 3 上午</b><br>酒店→傣族园（25km/30分钟）').addTo(map);
+
+            const day3Route2 = [
+                places.daiPark,
+                [21.95, 100.85],
+                places.forestPark
+            ];
+            L.polyline(day3Route2, {
+                color: '#38a169', weight: 4, opacity: 0.8
+            }).bindPopup('<b>Day 3 中午</b><br>傣族园→原始森林公园（15km/20分钟）').addTo(map);
+
+            const day3Route3 = [
+                places.forestPark,
+                [22.0, 100.82],
+                places.airport
+            ];
+            L.polyline(day3Route3, {
+                color: '#38a169', weight: 3, opacity: 0.5, dashArray: '5, 8'
+            }).bindPopup('<b>Day 3 下午</b><br>原始森林公园→机场（12km/15分钟）').addTo(map);
+
+            // 景点标记
+            const cityMarkers = [
+                {pos: places.manting, title: "曼听公园", label: "1", desc: "D1: 傣王御花园、孔雀园", color: "#dd6b20", day: "Day 1"},
+                {pos: places.zongfosi, title: "总佛寺", label: "2", desc: "D1: 南传佛教圣地、大金殿", color: "#dd6b20", day: "Day 1"},
+                {pos: places.nightMarket, title: "星光夜市+大金塔", label: "3", desc: "D1: 夜市逛吃、大金塔夜景", color: "#dd6b20", day: "Day 1"},
+                {pos: places.yexianggu, title: "野象谷", label: "4", desc: "D2: 雨林牧象、高空栈道", color: "#3182ce", day: "Day 2"},
+                {pos: places.botanicGarden, title: "中科院植物园", label: "5", desc: "D2: 百花园、王莲池", color: "#3182ce", day: "Day 2"},
+                {pos: places.gaozhuang, title: "告庄夜市", label: "6", desc: "D2: 傣味火锅、特色小吃", color: "#3182ce", day: "Day 2"},
+                {pos: places.daiPark, title: "傣族园", label: "7", desc: "D3: 泼水节、傣家村落", color: "#38a169", day: "Day 3"},
+                {pos: places.forestPark, title: "原始森林公园", label: "8", desc: "D3: 孔雀放飞、雨林徒步", color: "#38a169", day: "Day 3"},
+                {pos: places.airport, title: "嘎洒机场", label: "✈", desc: "D3: 还车、返程", color: "#718096", day: "Day 3"}
+            ];
+            
+            cityMarkers.forEach(marker => {
+                const icon = L.divIcon({
+                    html: `<div style="
+                        background-color:${marker.color};
+                        border-radius:50%;
+                        width:28px;
+                        height:28px;
+                        text-align:center;
+                        line-height:28px;
+                        font-size:13px;
+                        font-weight:bold;
+                        color:white;
+                        border:3px solid white;
+                        box-shadow:0 2px 6px rgba(0,0,0,0.3);
+                    ">${marker.label}</div>`,
+                    className: '',
+                    iconSize: [28, 28],
+                    iconAnchor: [14, 14]
+                });
+                
+                const amapUrl = `https://uri.amap.com/marker?position=${marker.pos[1]},${marker.pos[0]}&name=${encodeURIComponent(marker.title)}&coordinate=wgs84`;
+                L.marker(marker.pos, {icon: icon})
+                    .bindPopup(`
+                        <div style="min-width:200px">
+                            <b>${marker.title}</b><br>
+                            <span style="color:${marker.color};font-weight:bold">${marker.day}</span><br>
+                            ${marker.desc}<br>
+                            <hr style="margin:5px 0;border-color:#eee">
+                            <a href="${amapUrl}" target="_blank" style="color:#1890ff;font-weight:bold;text-decoration:none">
+                                📍 在高德地图中查看 →
+                            </a>
+                        </div>
+                    `)
+                    .addTo(map);
+                
+                L.marker(marker.pos, {
+                    icon: L.divIcon({
+                        html: `<div style="
+                            white-space:nowrap;
+                            font-size:11px;
+                            font-weight:bold;
+                            color:${marker.color};
+                            text-shadow:1px 1px 2px white, -1px -1px 2px white;
+                            margin-top:18px;
+                        ">${marker.title}</div>`,
+                        className: '',
+                        iconSize: null,
+                        iconAnchor: [-18, 0]
+                    })
+                }).addTo(map);
+            });
+
+            // 路线标签
+            const routeLabels = [
+                {pos: [22.08, 100.84], text: "🚗 D2 北上野象谷", color: "#3182ce"},
+                {pos: [22.0, 101.1], text: "🚗 D2 东往植物园", color: "#3182ce"},
+                {pos: [21.93, 100.85], text: "🚗 D3 南下傣族园", color: "#38a169"}
+            ];
+
+            routeLabels.forEach(label => {
+                L.marker(label.pos, {
+                    icon: L.divIcon({
+                        html: `<div class="horizontal-label" style="border-color:${label.color};color:${label.color}">${label.text}</div>`,
+                        className: 'route-label',
+                        iconSize: null
+                    })
+                }).addTo(map);
+            });
+
+            map.fitBounds([
+                [21.8, 100.7],
+                [22.2, 101.3]
+            ]);
+        });
+    </script>
+</body>
+</html>
