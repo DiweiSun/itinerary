@@ -150,7 +150,7 @@
         <strong>地图图例：</strong><br>
         <span style="color:#38a169;font-weight:bold">—— 自驾路线（G331/卡线/返程）</span><br>
         <span style="font-size:16px">📍</span> 数字为途经顺序：1 哈尔滨 → 2 黑河 → 3 塔河 → 4 漠河 → 5 根河 → 6 额尔古纳 → 7 室韦 → 8 黑山头 → 9 满洲里 → 10 阿尔山 → 11 乌兰浩特 → 12 齐齐哈尔 → 回哈尔滨
-        <br><small>💡 可切换 OSM / 卫星图层，放大查看沿途城市</small>
+        <br><small>💡 可切换 高德矢量 / 高德影像 / OSM，放大查看沿途城市</small>
     </div>
 
     <h2>完整行程表</h2>
@@ -452,11 +452,18 @@
             const map = L.map('map').setView([48.5, 120], 5);
 
             const baseLayers = {
+                "高德 矢量": L.tileLayer('https://webrd0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}', {
+                    attribution: '&copy; 高德地图',
+                    subdomains: ['01', '02', '03', '04'],
+                    maxZoom: 18
+                }).addTo(map),
+                "高德 影像": L.tileLayer('https://webst0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=6&x={x}&y={y}&z={z}', {
+                    attribution: '&copy; 高德地图',
+                    subdomains: ['01', '02', '03', '04'],
+                    maxZoom: 18
+                }),
                 "OpenStreetMap": L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                     attribution: '&copy; OpenStreetMap contributors'
-                }).addTo(map),
-                "Esri 卫星": L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-                    attribution: 'Tiles &copy; Esri'
                 })
             };
             L.control.layers(baseLayers).addTo(map);
