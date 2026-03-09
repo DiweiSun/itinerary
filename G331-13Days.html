@@ -1,230 +1,527 @@
-# G331 国境线 13 天秋景自驾攻略  
-## 哈尔滨 → 黑河 → 漠河 → 七卡/九卡 → 额尔古纳河
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>G331 国境线 13 天秋景自驾攻略</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <style>
+        body {
+            font-family: 'Microsoft YaHei', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 1800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f0f4f8;
+        }
+        h1 {
+            color: #1a365d;
+            text-align: center;
+            border-bottom: 2px solid #2b6cb0;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #2b6cb0;
+            border-left: 4px solid #4299e1;
+            padding-left: 10px;
+        }
+        #map {
+            height: 600px;
+            margin: 20px 0;
+            border: 2px solid #4299e1;
+            border-radius: 8px;
+        }
+        .itinerary-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background-color: white;
+            box-shadow: 0 2px 3px rgba(0,0,0,0.1);
+        }
+        .itinerary-table th, .itinerary-table td {
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            vertical-align: top;
+        }
+        .itinerary-table th {
+            background-color: #2b6cb0;
+            color: white;
+        }
+        .drive-segment {
+            color: #38a169;
+            font-weight: bold;
+        }
+        .city-segment {
+            color: #dd6b20;
+            font-weight: bold;
+        }
+        .card-line-highlight {
+            background-color: #ebf8ff;
+        }
+        .flight-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        .flight-table th, .flight-table td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+        .flight-table th {
+            background-color: #2b6cb0;
+            color: white;
+        }
+        .map-legend {
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 0 5px rgba(0,0,0,0.2);
+            line-height: 1.8;
+        }
+        .horizontal-label {
+            white-space: nowrap;
+            display: inline-block;
+            font-size: 14px;
+            text-shadow: 1px 1px 2px white;
+            padding: 2px 8px;
+            background: rgba(255,255,255,0.7);
+            border-radius: 4px;
+            border: 1px solid currentColor;
+            transform: translate(-50%, 0);
+            pointer-events: none;
+        }
+        .attraction-link {
+            color: #2b6cb0;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s;
+            border-bottom: 1px dashed #4299e1;
+            padding-bottom: 1px;
+        }
+        .attraction-link:hover {
+            color: #c53030;
+            border-bottom: 1px solid #c53030;
+        }
+        .guide-section {
+            margin-bottom: 30px;
+            padding: 15px;
+            background: #f9f9f9;
+            border-left: 4px solid #4299e1;
+        }
+        .back-to-top {
+            display: block;
+            text-align: right;
+            color: #7f8c8d;
+            font-size: 0.9em;
+        }
+        .nav-point {
+            font-size: 14px;
+            color: #38a169;
+        }
+        .note-box {
+            background: #fffbeb;
+            border-left: 4px solid #f6e05e;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        .autumn-badge {
+            display: inline-block;
+            background: linear-gradient(45deg, #d69e2e, #b7791f);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            margin-left: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>G331 国境线 13 天秋景自驾攻略 🍂</h1>
 
----
+    <div class="note-box">
+        <strong>行程亮点：</strong>哈尔滨取车 → 黑河/漠河 G331 北线 → 根河/额尔古纳湿地 → 室韦→九卡→七卡<strong>卡线</strong> → 满洲里 → <strong>阿尔山国家森林公园</strong> → 乌兰浩特→齐齐哈尔→哈尔滨还车飞回
+        <br><strong>出行日期：</strong>9.24 抵达哈尔滨，10.7 17:00 航班离哈 · <strong>取还车：</strong>均在哈尔滨太平国际机场
+    </div>
 
-## 一、行程概览
+    <div id="map"></div>
+    <div class="map-legend">
+        <strong>地图图例：</strong><br>
+        <span style="color:#38a169;font-weight:bold">—— 自驾路线（G331/卡线/返程）</span><br>
+        <span style="font-size:16px">📍</span> 数字为途经顺序：1 哈尔滨 → 2 黑河 → 3 塔河 → 4 漠河 → 5 根河 → 6 额尔古纳 → 7 室韦 → 8 黑山头 → 9 满洲里 → 10 阿尔山 → 11 乌兰浩特 → 12 齐齐哈尔 → 回哈尔滨
+        <br><small>💡 可切换 OSM / 卫星图层，放大查看沿途城市</small>
+    </div>
 
-| 天数 | 主要节点 | 当日亮点 | 约里程 |
-|------|----------|----------|--------|
-| D1 | 哈尔滨 | 出发、休整、补给 | — |
-| D2 | 哈尔滨→黑河 | G331 启程、黑龙江畔 | 约 586 km |
-| D3 | 黑河→呼玛 | 中俄民族风情园、呼玛河秋色 | 约 230 km |
-| D4 | 呼玛→北红村 | 十八站、龙江第一湾 | 约 380 km |
-| D5 | 北红村→北极村→漠河 | 北极村、最北点 | 约 150 km |
-| D6 | 漠河 | 洛古河、驯鹿部落、白桦林 | 约 120 km |
-| D7 | 漠河→根河 | 穿越大兴安岭、森林秋色 | 约 480 km |
-| D8 | 根河→额尔古纳 | 敖鲁古雅、额尔古纳湿地 | 约 230 km |
-| D9 | 额尔古纳→室韦 | 白桦林、室韦边境小镇 | 约 160 km |
-| D10 | 室韦→九卡→七卡→黑山头 | **卡线公路**、额尔古纳河界河 | 约 200 km |
-| D11 | 黑山头→满洲里/海拉尔 | 边境草原、国门（可选） | 约 260 km |
-| D12 | 满洲里/海拉尔→齐齐哈尔 | 返程、扎龙湿地（可选） | 约 550 km |
-| D13 | 齐齐哈尔→哈尔滨 | 回到哈尔滨 | 约 280 km |
+    <h2>完整行程表</h2>
+    <table class="itinerary-table">
+        <tr>
+            <th>天数</th>
+            <th>日期</th>
+            <th>城市/路线</th>
+            <th>主要活动</th>
+            <th>交通</th>
+            <th>主要景点</th>
+            <th>备注</th>
+            <th>住宿</th>
+        </tr>
+        <tr>
+            <td>D1</td>
+            <td>9.24</td>
+            <td>哈尔滨</td>
+            <td>抵达、机场取车、休整</td>
+            <td><span class="city-segment">✈ 抵达 + 机场取车</span></td>
+            <td>中央大街、圣索菲亚、松花江畔（可选）</td>
+            <td>车辆检查、采购干粮、下载离线地图、边防证可黑河办</td>
+            <td>哈尔滨市区/机场附近</td>
+        </tr>
+        <tr>
+            <td>D2</td>
+            <td>9.25</td>
+            <td>哈尔滨→黑河</td>
+            <td>G331 启程，黑龙江畔</td>
+            <td><span class="drive-segment">🚗 约 586 km，约 7h</span></td>
+            <td><a href="#黑河攻略" class="attraction-link">黑龙江公园</a>、瑷珲历史陈列馆、<a href="#中俄风情园攻略" class="attraction-link">中俄民族风情园</a></td>
+            <td>黑河可补办边防证；满油再北上</td>
+            <td>黑河市区</td>
+        </tr>
+        <tr>
+            <td>D3</td>
+            <td>9.26</td>
+            <td>黑河→塔河</td>
+            <td>醉美边防路、林区秋色</td>
+            <td><span class="drive-segment">🚗 约 400 km，约 6–7h</span></td>
+            <td>呼玛、十八站、塔河小镇</td>
+            <td>午餐可呼玛或自带；塔河前加满油</td>
+            <td>塔河县城</td>
+        </tr>
+        <tr>
+            <td>D4</td>
+            <td>9.27</td>
+            <td>塔河→漠河</td>
+            <td>龙江第一湾、北极村/北红村、抵漠河</td>
+            <td><span class="drive-segment">🚗 约 280 km</span></td>
+            <td><a href="#龙江第一湾攻略" class="attraction-link">龙江第一湾</a>、<a href="#北极村攻略" class="attraction-link">北极村</a>或北红村、漠河舞厅、松苑公园</td>
+            <td>龙江第一湾/北极村需门票+摆渡；时间紧可直抵漠河</td>
+            <td>漠河市区/北极村</td>
+        </tr>
+        <tr>
+            <td>D5</td>
+            <td>9.28</td>
+            <td>漠河→根河</td>
+            <td>穿越大兴安岭、森林秋色</td>
+            <td><span class="drive-segment">🚗 约 480 km，约 8–9h</span></td>
+            <td>满归、金河林区、“五花山”</td>
+            <td>早出发；部分砂石/修路，SUV 更稳；提前查路况</td>
+            <td>根河市</td>
+        </tr>
+        <tr>
+            <td>D6</td>
+            <td>9.29</td>
+            <td>根河→额尔古纳</td>
+            <td>敖鲁古雅、额尔古纳湿地</td>
+            <td><span class="drive-segment">🚗 约 230 km</span></td>
+            <td><a href="#敖鲁古雅攻略" class="attraction-link">敖鲁古雅使鹿部落</a>、<a href="#额尔古纳湿地攻略" class="attraction-link">额尔古纳湿地</a></td>
+            <td>补油、补给，次日进卡线</td>
+            <td>额尔古纳市区</td>
+        </tr>
+        <tr>
+            <td>D7</td>
+            <td>9.30</td>
+            <td>额尔古纳→室韦</td>
+            <td>白桦林、室韦边境小镇</td>
+            <td><span class="drive-segment">🚗 约 160 km</span></td>
+            <td>白桦林、牧场秋色、<a href="#室韦攻略" class="attraction-link">室韦</a>木刻楞、江边日落</td>
+            <td>满油、备干粮，次日走卡线</td>
+            <td>室韦小镇</td>
+        </tr>
+        <tr class="card-line-highlight">
+            <td>D8</td>
+            <td>10.1</td>
+            <td>室韦→九卡→七卡→黑山头</td>
+            <td><strong>卡线公路</strong>、额尔古纳河界河</td>
+            <td><span class="drive-segment">🚗 X904 约 200 km</span></td>
+            <td><a href="#卡线攻略" class="attraction-link">九卡/八卡/七卡</a>、额尔古纳河、乌兰山太极湾（可选）</td>
+            <td>部分砂石路，SUV 建议；室韦加满油带足水；边防证随身</td>
+            <td>黑山头镇</td>
+        </tr>
+        <tr>
+            <td>D9</td>
+            <td>10.2</td>
+            <td>黑山头→海拉尔→满洲里</td>
+            <td>边境草原、国门、套娃</td>
+            <td><span class="drive-segment">🚗 约 260 km</span></td>
+            <td><a href="#满洲里攻略" class="attraction-link">国门</a>、套娃广场、中俄蒙风情</td>
+            <td>满洲里满油，次日赴阿尔山较长</td>
+            <td>满洲里</td>
+        </tr>
+        <tr>
+            <td>D10</td>
+            <td>10.3</td>
+            <td>满洲里→阿尔山</td>
+            <td>赴阿尔山，宿阿尔山</td>
+            <td><span class="drive-segment">🚗 约 430 km，约 6–7h</span></td>
+            <td>沿途草原与林区秋色；阿尔山市区/温泉小镇</td>
+            <td>早出发；阿尔山森林公园需提前购票（含景交）</td>
+            <td>阿尔山市区/森林公园门口</td>
+        </tr>
+        <tr>
+            <td>D11</td>
+            <td>10.4</td>
+            <td>阿尔山国家森林公园</td>
+            <td>天池、驼峰岭、杜鹃湖、秋色森林</td>
+            <td><span class="city-segment">景交 + 步行</span></td>
+            <td><a href="#阿尔山攻略" class="attraction-link">天池、驼峰岭天池、杜鹃湖、石塘林</a><span class="autumn-badge">🍂 秋景</span></td>
+            <td>留足 6–8h；防滑鞋、保暖外套</td>
+            <td>阿尔山市区/景区附近</td>
+        </tr>
+        <tr>
+            <td>D12</td>
+            <td>10.5</td>
+            <td>阿尔山→乌兰浩特</td>
+            <td>经 S203，宿乌兰浩特</td>
+            <td><span class="drive-segment">🚗 约 280 km，约 4h</span></td>
+            <td>沿途林区与农牧区秋色</td>
+            <td>满油，次日齐齐哈尔高速为主</td>
+            <td>乌兰浩特</td>
+        </tr>
+        <tr>
+            <td>D13</td>
+            <td>10.6</td>
+            <td>乌兰浩特→齐齐哈尔</td>
+            <td>返程，宿齐齐哈尔</td>
+            <td><span class="drive-segment">🚗 约 450 km，约 5–6h</span></td>
+            <td>扎龙湿地（可选，丹顶鹤、秋芦）</td>
+            <td>当晚早点休息，10.7 早起赴哈尔滨机场</td>
+            <td>齐齐哈尔</td>
+        </tr>
+        <tr>
+            <td>—</td>
+            <td><strong>10.7</strong></td>
+            <td>齐齐哈尔→哈尔滨机场→回程</td>
+            <td>还车，17:00 航班</td>
+            <td><span class="drive-segment">🚗 约 280 km，约 3.5h</span> + ✈ 还车后乘机</td>
+            <td>机场还车、办票、安检</td>
+            <td>建议 14:00 前完成还车；8:00 前从齐市出发较稳妥</td>
+            <td>N/A</td>
+        </tr>
+    </table>
 
-**秋景最佳时间**：9 月下旬至 10 月中旬（约 9 月 25 日–10 月 15 日），黄叶、红叶“五花山”最盛，蚊虫少，光线柔和。
+    <h2>取还车信息</h2>
+    <div class="note-box">
+        <strong>🚗 哈尔滨太平国际机场取还车</strong><br>
+        • <strong>取车：</strong>9.24 航班落地后，在机场约定点位取车（建议提前租车平台预约，取车时检查车况、拍照留证）<br>
+        • <strong>还车：</strong>10.7 上午抵达机场后还车，随后 17:00 航班起飞<br>
+        • <strong>建议车型：</strong>SUV 或底盘较高车辆（卡线、漠河–根河段路况一般）<br>
+        • <strong>⚠️ 注意：</strong>北段加油站间隔长，黑河、漠河、根河、额尔古纳、室韦前务必满油；下载黑龙江+内蒙古离线地图
+    </div>
 
----
+    <h2>住宿信息（13 晚）</h2>
+    <table class="flight-table">
+        <tr>
+            <th>日期</th>
+            <th>城市/地点</th>
+            <th>备注</th>
+        </tr>
+        <tr><td>9.24</td><td>哈尔滨</td><td>市区或机场附近</td></tr>
+        <tr><td>9.25</td><td>黑河</td><td>市区</td></tr>
+        <tr><td>9.26</td><td>塔河</td><td>县城</td></tr>
+        <tr><td>9.27</td><td>漠河/北极村</td><td>提前订</td></tr>
+        <tr><td>9.28</td><td>根河</td><td>市区</td></tr>
+        <tr><td>9.29</td><td>额尔古纳</td><td>市区</td></tr>
+        <tr><td>9.30</td><td>室韦</td><td>小镇民宿，提前订</td></tr>
+        <tr class="card-line-highlight"><td>10.1</td><td>黑山头</td><td>骑马、日落山</td></tr>
+        <tr><td>10.2</td><td>满洲里</td><td>市区</td></tr>
+        <tr><td>10.3</td><td>阿尔山</td><td>市区或森林公园门口</td></tr>
+        <tr><td>10.4</td><td>阿尔山</td><td>同上</td></tr>
+        <tr><td>10.5</td><td>乌兰浩特</td><td>兴安盟首府</td></tr>
+        <tr><td>10.6</td><td>齐齐哈尔</td><td>市区，方便次日早赴机场</td></tr>
+    </table>
 
-## 二、每日详细安排
+    <h2>景点导航目的地</h2>
+    <ul>
+        <li><span class="nav-point">龙江第一湾</span>：塔河–漠河段 G331 岔路，按路牌/导航</li>
+        <li><span class="nav-point">北极村</span>：漠河市北极村景区</li>
+        <li><span class="nav-point">敖鲁古雅使鹿部落</span>：根河市附近</li>
+        <li><span class="nav-point">额尔古纳湿地</span>：额尔古纳市拉布大林</li>
+        <li><span class="nav-point">室韦</span>：额尔古纳市室韦俄罗斯族民族乡</li>
+        <li><span class="nav-point">九卡/七卡（卡线）</span>：X904 县道，室韦→黑山头沿额尔古纳河</li>
+        <li><span class="nav-point">满洲里国门/套娃广场</span>：满洲里市区</li>
+        <li><span class="nav-point">阿尔山国家森林公园</span>：阿尔山市，导航“阿尔山国家森林公园”</li>
+        <li><span class="nav-point">扎龙湿地</span>：齐齐哈尔市扎龙镇（可选）</li>
+    </ul>
 
-### D1 哈尔滨（集结日）
+    <h2>景点游玩攻略</h2>
+    <div id="attraction-guides">
+        <div id="黑河攻略" class="guide-section">
+            <h3>黑河 · 黑龙江畔</h3>
+            <p><strong>亮点：</strong>中俄边境城，江对岸即俄罗斯布拉戈维申斯克；G331 北线重要节点。</p>
+            <p><strong>可玩：</strong>黑龙江公园、瑷珲历史陈列馆、中俄民族风情园（秋景+俄式建筑）。</p>
+            <p><strong>注意：</strong>可在此补办/咨询边防证；取车后满油再北上。</p>
+            <a href="#" class="back-to-top">返回顶部</a>
+        </div>
+        <div id="中俄风情园攻略" class="guide-section">
+            <h3>中俄民族风情园</h3>
+            <p><strong>位置：</strong>黑河市区</p>
+            <p><strong>特色：</strong>俄式建筑、秋景拍照、民族风情。</p>
+            <a href="#" class="back-to-top">返回顶部</a>
+        </div>
+        <div id="龙江第一湾攻略" class="guide-section">
+            <h3>龙江第一湾</h3>
+            <p><strong>位置：</strong>塔河–漠河段 G331 岔路，需拐入景区。</p>
+            <p><strong>特色：</strong>黑龙江大拐弯，登观景台看江与层林尽染，秋景极佳。</p>
+            <p><strong>注意：</strong>需购门票+ 摆渡车；时间允许建议必停。</p>
+            <a href="#" class="back-to-top">返回顶部</a>
+        </div>
+        <div id="北极村攻略" class="guide-section">
+            <h3>北极村</h3>
+            <p><strong>位置：</strong>漠河市北极村。</p>
+            <p><strong>特色：</strong>最北邮局、最北哨所、北极沙洲、金秋白桦与黑龙江。</p>
+            <p><strong>注意：</strong>需门票+ 景交/车费；与北红村二选一或都去需预留时间。</p>
+            <a href="#" class="back-to-top">返回顶部</a>
+        </div>
+        <div id="敖鲁古雅攻略" class="guide-section">
+            <h3>敖鲁古雅使鹿部落</h3>
+            <p><strong>位置：</strong>根河市附近。</p>
+            <p><strong>特色：</strong>驯鹿、鄂温克文化、森林秋色，人文与自然结合。</p>
+            <p><strong>游玩时间：</strong>约 2 小时。</p>
+            <a href="#" class="back-to-top">返回顶部</a>
+        </div>
+        <div id="额尔古纳湿地攻略" class="guide-section">
+            <h3>额尔古纳湿地</h3>
+            <p><strong>位置：</strong>额尔古纳市拉布大林。</p>
+            <p><strong>特色：</strong>亚洲最大湿地之一，秋日黄绿交织，观景台视野开阔。</p>
+            <p><strong>注意：</strong>需门票；下午光线适合拍照。</p>
+            <a href="#" class="back-to-top">返回顶部</a>
+        </div>
+        <div id="室韦攻略" class="guide-section">
+            <h3>室韦</h3>
+            <p><strong>位置：</strong>额尔古纳市室韦俄罗斯族民族乡，中俄界河额尔古纳河畔。</p>
+            <p><strong>特色：</strong>木刻楞、俄餐、江边日落，对岸即俄罗斯村庄。</p>
+            <p><strong>注意：</strong>室韦为卡线起点，次日走九卡→七卡；当晚满油、备干粮。</p>
+            <a href="#" class="back-to-top">返回顶部</a>
+        </div>
+        <div id="卡线攻略" class="guide-section">
+            <h3>卡线公路（九卡·八卡·七卡）</h3>
+            <p><strong>路线：</strong>室韦 → X904 → 九卡 → 八卡 → 七卡 → 乌兰山（可选）→ 五卡 → 黑山头。</p>
+            <p><strong>亮点：</strong>全程沿额尔古纳河（中俄界河），河曲与对岸俄方田园、秋林；乌兰山太极湾可俯瞰 S 弯。</p>
+            <p><strong>路况：</strong>X904 部分砂石路、弯道多，建议 SUV；沿途加油站与餐厅少，室韦加满油、带足水与干粮。</p>
+            <p><strong>安全：</strong>严禁越界；边防证随身；只在观景台或安全地带停车拍照。</p>
+            <a href="#" class="back-to-top">返回顶部</a>
+        </div>
+        <div id="满洲里攻略" class="guide-section">
+            <h3>满洲里 · 国门与套娃</h3>
+            <p><strong>亮点：</strong>国门景区、套娃广场、中俄蒙风情。</p>
+            <p><strong>游玩时间：</strong>半天可逛国门+套娃广场。</p>
+            <p><strong>注意：</strong>满洲里满油，次日赴阿尔山路程较长。</p>
+            <a href="#" class="back-to-top">返回顶部</a>
+        </div>
+        <div id="阿尔山攻略" class="guide-section">
+            <h3>阿尔山国家森林公园</h3>
+            <p><strong>位置：</strong>阿尔山市，需购门票+ 景交。</p>
+            <p><strong>必看：</strong>天池、驼峰岭天池、杜鹃湖、石塘林；10 月初秋景“五花山”极佳。</p>
+            <p><strong>游玩时间：</strong>建议留足 6–8 小时；穿防滑鞋、带保暖外套。</p>
+            <a href="#" class="back-to-top">返回顶部</a>
+        </div>
+    </div>
 
-- **建议**：车辆检查、采购干粮/水、下载离线地图（高德/百度）、办理边防证（到户籍地或黑河/漠河办）。
-- **可逛**：中央大街、圣索菲亚大教堂、松花江畔；秋日江景与欧式建筑很上镜。
-- **住宿**：哈尔滨市区。
-- **提示**：提前加满油，G331 北段加油站间隔长（最长超 200 km）。
+    <h2>行前必读</h2>
+    <div class="note-box">
+        <strong>证件：</strong>身份证、驾驶证、行驶证；<strong>边防证</strong>（漠河、室韦、卡线、黑山头等需备，户籍地或黑河/漠河办理）<br>
+        <strong>油：</strong>北段见站就加；黑河、漠河、根河、额尔古纳、室韦前务必满油<br>
+        <strong>手机：</strong>下载黑龙江、内蒙古离线地图；部分路段无信号<br>
+        <strong>衣物：</strong>9–10 月早晚冷，冲锋衣/薄羽绒、长裤、防滑鞋；防晒、防蚊<br>
+        <strong>门票：</strong>龙江第一湾、北极村、额尔古纳湿地、敖鲁古雅、阿尔山国家森林公园等需门票，可提前平台预订<br>
+        <strong>安全：</strong>边境严禁越界；林区防火；垃圾带走、不碾压草原
+    </div>
 
----
+    <h2>预算参考（人均）</h2>
+    <table class="flight-table">
+        <tr><th>项目</th><th>粗略范围</th></tr>
+        <tr><td>油费+过路费</td><td>约 2500–3500 元/车（2–3 人摊）</td></tr>
+        <tr><td>住宿（13 晚）</td><td>约 2600–6500 元/人</td></tr>
+        <tr><td>门票</td><td>约 500–800 元/人</td></tr>
+        <tr><td>餐饮</td><td>约 2000–3200 元/人</td></tr>
+        <tr><td><strong>合计</strong></td><td><strong>约 6000–12000 元/人</strong></td></tr>
+    </table>
 
-### D2 哈尔滨 → 黑河（约 586 km，约 7 小时）
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 东北+内蒙古东部 中心约 48.5, 120，缩放约 4–5
+            const map = L.map('map').setView([48.5, 120], 5);
 
-- **路线**：哈伊高速/ G202 → 转 G331 抵黑河。
-- **亮点**：
-  - 进入 G331 北线，沿途农田、林带初现秋色。
-  - 黑河：黑龙江畔中俄边境城，江对岸即俄罗斯布拉戈维申斯克。
-- **可玩**：黑龙江公园、瑷珲历史陈列馆、中俄民族风情园（秋景+俄式建筑）。
-- **食宿**：黑河市区，江鱼、俄餐可尝。
-- **注意**：黑河可补办/咨询边防证；满油再北上。
+            const baseLayers = {
+                "OpenStreetMap": L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '&copy; OpenStreetMap contributors'
+                }).addTo(map),
+                "Esri 卫星": L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+                    attribution: 'Tiles &copy; Esri'
+                })
+            };
+            L.control.layers(baseLayers).addTo(map);
 
----
+            // 途经城市坐标（近似）
+            const cities = [
+                { name: '哈尔滨', pos: [45.75, 126.63], label: '1' },
+                { name: '黑河', pos: [50.24, 127.53], label: '2' },
+                { name: '塔河', pos: [52.34, 124.72], label: '3' },
+                { name: '漠河', pos: [52.97, 122.54], label: '4' },
+                { name: '根河', pos: [50.78, 121.52], label: '5' },
+                { name: '额尔古纳', pos: [50.24, 120.18], label: '6' },
+                { name: '室韦', pos: [51.27, 119.90], label: '7' },
+                { name: '黑山头', pos: [50.20, 119.35], label: '8' },
+                { name: '满洲里', pos: [49.59, 117.45], label: '9' },
+                { name: '阿尔山', pos: [47.18, 119.94], label: '10' },
+                { name: '乌兰浩特', pos: [46.08, 122.07], label: '11' },
+                { name: '齐齐哈尔', pos: [47.35, 123.92], label: '12' }
+            ];
 
-### D3 黑河 → 呼玛（约 230 km，约 4 小时）
+            // 自驾路线：哈尔滨→黑河→塔河→漠河→根河→额尔古纳→室韦→黑山头→满洲里→阿尔山→乌兰浩特→齐齐哈尔→哈尔滨
+            const driveRoute = [
+                cities[0].pos, cities[1].pos, cities[2].pos, cities[3].pos, cities[4].pos,
+                cities[5].pos, cities[6].pos, cities[7].pos, cities[8].pos, cities[9].pos,
+                cities[10].pos, cities[11].pos,
+                [45.75, 126.63]  // 回哈尔滨
+            ];
 
-- **路线**：沿 G331 北行，全程沿黑龙江右岸。
-- **亮点**：
-  - “醉美龙江边防路”核心段，江景+ 山林“五花山”。
-  - 呼玛河大桥、呼玛河口景区秋色。
-- **可玩**：鹿鼎山（秋林与江景）、呼玛河口、江畔摄影。
-- **食宿**：呼玛县城；可早到，下午在县城周边拍日落。
-- **注意**：路上村镇少，午餐可自带或在呼玛解决。
+            L.polyline(driveRoute, {
+                color: '#38a169',
+                weight: 5,
+                opacity: 0.8
+            }).bindPopup('<b>🚗 G331 国境线 + 卡线 + 阿尔山 全程自驾</b><br>哈尔滨→黑河→漠河→根河→额尔古纳→室韦→黑山头→满洲里→阿尔山→乌兰浩特→齐齐哈尔→哈尔滨').addTo(map);
 
----
+            const colors = ['#e53e3e','#3182ce','#38a169','#d69e2e','#805ad5','#dd6b20','#2c7a7b','#b7791f','#c53030','#2b6cb0','#276749','#744210'];
+            cities.forEach((c, i) => {
+                const color = colors[i % colors.length];
+                const icon = L.divIcon({
+                    html: `<div style="
+                        background-color:${color};
+                        border-radius:50%;
+                        width:28px;
+                        height:28px;
+                        text-align:center;
+                        line-height:28px;
+                        font-size:14px;
+                        font-weight:bold;
+                        color:white;
+                        border:2px solid white;
+                        box-shadow:0 2px 6px rgba(0,0,0,0.3);
+                    ">${c.label}</div>`,
+                    className: '',
+                    iconSize: [28, 28],
+                    iconAnchor: [14, 14]
+                });
+                L.marker(c.pos, { icon: icon })
+                    .bindPopup(`<b>${c.label}. ${c.name}</b>`)
+                    .addTo(map);
+            });
 
-### D4 呼玛 → 北红村（约 380 km，约 6–7 小时）
-
-- **路线**：G331 经十八站、塔河方向，到龙江第一湾路口再进北红村。
-- **亮点**：
-  - 十八站、塔河一带大兴安岭林区秋色。
-  - **龙江第一湾**（必停）：黑龙江大拐弯，登观景台看江与层林尽染。
-  - **北红村**：比北极村更北的原始村落，星空、晨雾、木刻楞。
-- **食宿**：北红村农家乐/民宿（提前订）。
-- **注意**：进龙江第一湾需购门票+ 摆渡；进村前加满油。
-
----
-
-### D5 北红村 → 北极村 → 漠河（约 150 km）
-
-- **路线**：北红村 → 北极村 → 漠河市。
-- **亮点**：
-  - **北极村**：最北邮局、最北哨所、北极沙洲、金秋白桦与黑龙江。
-  - 漠河市：可打卡“漠河舞厅”、松苑公园秋色。
-- **可玩**：北极村内电瓶车或步行；留足 4–5 小时。
-- **食宿**：漠河市区（选择多）或北极村（更安静）。
-- **注意**：北极村门票+ 车费；傍晚前赶到漠河可休整。
-
----
-
-### D6 漠河（休整 + 周边）
-
-- **建议**：半天休整，半天走周边。
-- **可选**：
-  - **洛古河村**：黑龙江源头、源头广场，G331 北端标志。
-  - **驯鹿部落/鄂温克使鹿部落**：森林与驯鹿，秋景人文。
-  - **白桦林、观音山**：秋色拍照。
-- **食宿**：漠河。
-- **提示**：洛古河路远且路况一般，可据体力量力而行；今日为南下“大穿越”蓄力。
-
----
-
-### D7 漠河 → 根河（约 480 km，约 8–9 小时）
-
-- **路线**：漠河 → 满归（内蒙古）→ 阿龙山 → 根河。主要走 G332、S204 等，穿越大兴安岭。
-- **亮点**：
-  - 一路森林秋色，“五花山”连绵。
-  - 满归、金河一带林区小镇风光。
-- **食宿**：根河市。
-- **注意**：全天路程长，早出发；部分路段在修或为砂石路，SUV 更稳妥；提前查路况与是否封路。
-
----
-
-### D8 根河 → 额尔古纳（约 230 km）
-
-- **路线**：根河 → 额尔古纳市。
-- **亮点**：
-  - **敖鲁古雅使鹿部落**：驯鹿、鄂温克文化、森林秋色（根河附近）。
-  - **额尔古纳湿地**（亚洲最大湿地之一）：秋日黄绿交织，观景台视野开阔。
-- **可玩**：上午根河/敖鲁古雅，下午额尔古纳湿地+ 市区。
-- **食宿**：额尔古纳市区。
-- **提示**：额尔古纳是“卡线”与额尔古纳河观景的前站，可在此补油、补给。
-
----
-
-### D9 额尔古纳 → 室韦（约 160 km）
-
-- **路线**：额尔古纳 → S301/拉布大林 → 室韦（俄罗斯族民族乡）。
-- **亮点**：
-  - 沿途白桦林、牧场、麦田秋色。
-  - **室韦**：中俄界河额尔古纳河畔小镇，对岸即俄罗斯；木刻楞、俄餐、江边日落。
-- **可玩**：室韦口岸、江边步道、骑马/ 马车；傍晚江边拍日落与对岸村庄。
-- **食宿**：室韦小镇（民宿多，提前订）。
-- **注意**：室韦是“卡线”起点，次日走九卡→七卡；满油、备干粮。
-
----
-
-### D10 室韦 → 九卡 → 八卡 → 七卡 → 黑山头（卡线日，约 200 km）
-
-- **路线**：室韦 → X904 县道（卡线）→ 九卡 → 八卡 → 七卡 → 乌兰山（可选）→ 五卡 → 黑山头。
-- **亮点**（秋景重点）：
-  - **九卡**：额尔古纳河初段，河曲与对岸俄方田园。
-  - **八卡**：草原与河岸秋色，野花若未谢可同框。
-  - **七卡**：湿地与河湾，油菜花季已过但秋色层次好；“八卦河”等河曲。
-  - 全程沿**额尔古纳河**（中俄界河），对岸俄罗斯村庄、秋林清晰可见。
-  - **乌兰山**：太极湾观景台，可俯瞰额尔古纳河 S 弯（可选，看时间）。
-- **路况**：X904 部分砂石路、弯道多，建议 SUV；遇修路听从现场指挥。
-- **食宿**：黑山头镇（骑马、访牧户、日落山看日落）。
-- **注意**：
-  - 卡线沿途加油站、餐厅少，室韦加满油，带足水和干粮。
-  - 严禁越界；只在观景台或安全地带停车拍照。
-  - 边防证随身带，遇检查站配合查验。
-
----
-
-### D11 黑山头 → 满洲里 或 海拉尔（约 260 km）
-
-- **路线**：黑山头 → G331 → 满洲里 或 海拉尔。
-- **可选**：
-  - **满洲里**：国门、套娃广场、中俄蒙风情；若时间紧可只到海拉尔。
-  - **海拉尔**：呼伦贝尔中心，方便次日返程。
-- **食宿**：满洲里或海拉尔。
-- **提示**：若 D12 要赶回哈尔滨方向，选海拉尔更顺；若想多看一天国门可住满洲里。
-
----
-
-### D12 满洲里/海拉尔 → 齐齐哈尔（约 550 km）
-
-- **路线**：G301/绥满高速经牙克石、扎兰屯至齐齐哈尔。
-- **可选**：扎龙湿地（丹顶鹤，秋季芦苇金黄）— 需预留 2–3 小时。
-- **食宿**：齐齐哈尔。
-- **注意**：全天以赶路为主，早出发；若不去扎龙可直达哈尔滨附近住宿，缩短 D13。
-
----
-
-### D13 齐齐哈尔 → 哈尔滨（约 280 km）
-
-- **路线**：G10 绥满高速直达哈尔滨。
-- **建议**：上午出发，中午前后抵哈，还车或回家；若有余力可再逛半天哈尔滨。
-- **结束**：行程结束。
-
----
-
-## 三、行前必读
-
-### 1. 车辆与证件
-
-- **车辆**：建议 SUV 或底盘较高的车；卡线、漠河–根河段部分路况一般。
-- **证件**：身份证、驾驶证、行驶证；**边防证**（到漠河、室韦、卡线、黑山头等需备，可在户籍地或黑河/漠河办理）。
-- **保险**：确认车辆保险覆盖范围，尤其是异地、长途。
-
-### 2. 补给与装备
-
-- **油**：北段加油站间隔长，见站就加；黑河、漠河、根河、额尔古纳、室韦前务必满油。
-- **手机**：下载黑龙江、内蒙古离线地图；部分路段无信号。
-- **衣物**：9–10 月早晚冷，需冲锋衣/薄羽绒、长裤、防滑鞋；防晒、防蚊（林区仍有少量蚊虫）。
-- **干粮/水**：卡线日、漠河–根河日建议自带午餐和水。
-
-### 3. 住宿与门票
-
-- **住宿**：北红村、北极村、室韦、黑山头等热门地建议提前 1–2 周预订；国庆前后尤其紧张。
-- **门票**：龙江第一湾、北极村、额尔古纳湿地、敖鲁古雅等需门票，可提前在平台比价预订。
-
-### 4. 安全与文明
-
-- **边境**：全程沿国境，严禁越界、抛物过境；遵守边防与禁飞规定。
-- **驾驶**：限速、弯道、牲畜穿行；林区注意防火，勿野外用火。
-- **环保**：垃圾随身带走，不碾压草原、不破坏植被。
-
----
-
-## 四、秋景拍摄小贴士
-
-- **时间**：日出后 1 小时、日落前 1 小时光线最柔和；卡线、龙江第一湾、额尔古纳湿地适合早晚拍。
-- **色彩**：白桦林、杨树黄叶与针叶林绿、红枫形成“五花山”；可带偏振镜减反光、突出秋色。
-- **构图**：额尔古纳河 S 弯、龙江第一湾用广角；村落、驯鹿、牛羊用中长焦更有层次。
-
----
-
-## 五、预算参考（人均，供参考）
-
-| 项目 | 粗略范围 |
-|------|----------|
-| 油费+过路费 | 约 2500–3500 元/车（按一车 2–3 人摊） |
-| 住宿 | 约 200–500 元/晚，12 晚约 2400–6000 元/人 |
-| 门票 | 约 500–800 元/人 |
-| 餐饮 | 约 150–250 元/天，13 天约 2000–3200 元/人 |
-| **合计** | 约 **6000–12000 元/人**（视住宿档次与是否国庆） |
-
----
-
-愿你 13 天 G331 国境线秋景之旅，黑河、漠河、七卡九卡与额尔古纳河一路平安、尽兴。
-
-*攻略可根据实际路况、天气和体力，灵活压缩或延长某段；卡线与漠河–根河段建议预留弹性时间。*
+            map.fitBounds([
+                [45.2, 116.8],
+                [53.5, 128.2]
+            ]);
+        });
+    </script>
+</body>
+</html>
